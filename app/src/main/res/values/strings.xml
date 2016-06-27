@@ -1,0 +1,136 @@
+<resources>
+    <string name="app_name">GKDVR</string>
+    <string name="remote_file">远程文件</string>
+    <string name="photo">相册</string>
+    <string name="camera">摄像机</string>
+    <string name="setting">设置</string>
+    <string name="loading">正在加载</string>
+    <string name="notice">提示</string>
+    <string name="notice_delete_file">"是否要删除以下文件?\n"</string>
+    <string name="notice_exit">确定要退出程序吗?</string>
+    <string name="no_device">设备未连接</string>
+    <string name="connecting">现在连接</string>
+    <string name="connecting_device">设备未连接,是否连接设备?</string>
+    <string name="Submiting">正在提交</string>
+    <string name="photoing">正在拍照</string>
+    <string name="taking_photo_fail">拍照失败</string>
+    <string name="taking_photo_success">拍照成功</string>
+    <string name="lock_file_success">加锁成功</string>
+    <string name="unlock_file_success">解锁成功</string>
+    <string name="delete_file_success">删除成功</string>
+    <string name="get_version_fail">获取版本信息失败</string>
+    <string name="device_disconnection">设备断开连接</string>
+    <string name="restore_fail">恢复出厂设置失败</string>
+    <string name="load_video_fail">加载视频失败</string>
+    <string name="restore_suceess">恢复出厂设置成功</string>
+    <string name="device_restoring">设备即将重启</string>
+    <string name="format_sd_fail">格式化SD卡失败</string>
+    <string name="format_sd_success">格式化SD卡成功</string>
+    <string name="setting_fail">设置失败</string>
+    <string name="setting_success">设置成功</string>
+    <string name="set_record_fail">参数设置失败</string>
+    <string name="set_time_fail">时间同步失败</string>
+    <string name="set_time_success">时间同步成功</string>
+    <string name="recording_fail">录像失败</string>
+    <string name="recording_start">开始录像</string>
+    <string name="recording_end">录像完成</string>
+    <string name="net_fail">网络异常</string>
+    <string name="connect_not_ready">暂无连接</string>
+    <string name="pls_stop_recording">请先停止录像</string>
+    <string name="image_unit">张</string>
+    <string name="video_unit">个</string>
+    <string name="open_file">打开</string>
+    <string name="lock_file">加锁</string>
+    <string name="unlock_file">解锁</string>
+    <string name="download_file">下载</string>
+    <string name="delete_file">删除</string>
+    <string name="delete_success">删除成功</string>
+    <string name="delete_fail">删除失败</string>
+    <string name="download_over">下载完成</string>
+    <string name="download_fail">下载失败</string>
+    <string name="cancel">取消</string>
+    <string name="ensure">确定</string>
+    <string name="deleting">删除中</string>
+    <string name="setting_sdcard">记忆卡</string>
+    <string name="image_setting">图片设置</string>
+    <string name="video_setting">录像</string>
+    <string name="photo_setting">拍照</string>
+    <string name="device_setting">装置</string>
+    <string name="version">版本信息</string>
+    <string name="restore">重启</string>
+    <string name="about_setting">关于</string>
+    <string name="no_more_data">暂无数据</string>
+    <string name="current_version_info">当前版本:</string>
+    <string name="sd_store">Device储存空间</string>
+    <string name="sd_total_size">容量</string>
+    <string name="sd_available">可用空间</string>
+    <string name="format">格式化</string>
+    <string name="SD_format">Device SD Card 格式化</string>
+    <string name="No_SdCard">Device SD Card 不存在</string>
+    <string name="record_mode">录像模式</string>
+    <string name="isNeed_Loop_record">是否循环录像</string>
+    <string name="record_vol">录像音量</string>
+    <string name="record_Resolution">分辨率</string>
+    <string name="record_Frames">帧率</string>
+    <string name="record_Quality">质量</string>
+    <string name="record_Bitrate">比特率</string>
+    <string name="record_time">录像时长</string>
+    <string name="photo_Brightness">亮度</string>
+    <string name="photo_Contrast">对比度</string>
+    <string name="photo_Hue">色调</string>
+    <string name="photo_Saturation">饱和度</string>
+    <string name="photo_Sharpness">锐度</string>
+    <string name="photo_frequency">频率</string>
+    <string name="VideoFormat">录像格式</string>
+    <string name="device_time">时间同步</string>
+    <string name="device_gsensor">重力传感器</string>
+    <string name="device_reset">恢复出厂设置</string>
+    <string name="alert_reset">确定要恢复出厂设置吗？</string>
+    <string name="alert_format_SD">确定要格式化SD卡吗？</string>
+    <string-array name="times">
+        <item>1分钟</item>
+        <item>3分钟</item>
+        <item>5分钟</item>
+    </string-array>
+    <string-array name="record_modes">
+        <item>自动</item>
+        <item>手动</item>
+    </string-array>
+    <string-array name="Gsensors">
+        <item>低</item>
+        <item>中</item>
+        <item>高</item>
+    </string-array>
+    <string-array name="Quality">
+        <item>高</item>
+        <item>中</item>
+        <item>低</item>
+    </string-array>
+    <string-array name="Frames">
+        <item>30fps</item>
+        <item>25fps</item>
+        <item>20fps</item>
+        <item>15fps</item>
+    </string-array>
+    <string-array name="Resolution">
+        <item>1080P</item>
+        <item>720P</item>
+    </string-array>
+    <string-array name="Bitrate">
+        <item>2Mbps</item>
+        <item>3Mbps</item>
+        <item>4Mbps</item>
+        <item>5Mbps</item>
+        <item>6Mbps</item>
+        <item>7Mbps</item>
+        <item>8Mbps</item>
+    </string-array>
+    <string-array name="frequency">
+        <item>50Hz</item>
+        <item>60Hz</item>
+    </string-array>
+    <string-array name="VideoFormat">
+        <item>PAL</item>
+        <item>NTSC</item>
+    </string-array>
+</resources>
