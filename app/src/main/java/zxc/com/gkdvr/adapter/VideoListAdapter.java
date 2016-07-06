@@ -1,6 +1,8 @@
 package zxc.com.gkdvr.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,7 @@ import zxc.com.gkdvr.utils.UIUtil;
  * Created by dk on 2016/6/6.
  */
 public class VideoListAdapter extends BaseAdapter {
+    private final DisplayMetrics dm;
     private Context context;
     private final LayoutInflater inflater;
     private LinkedHashMap<String, List<ListVideo>> map;
@@ -44,6 +47,8 @@ public class VideoListAdapter extends BaseAdapter {
         this.map = map;
         this.context = context;
         this.listner = listner;
+        dm = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
         inflater = LayoutInflater.from(context);
         postionKeys = new ArrayList<>();
         if (map == null) {
@@ -86,19 +91,24 @@ public class VideoListAdapter extends BaseAdapter {
         for (int i = 0; i < val.size(); i++) {
             final VideoEntity file = val.get(i).getFile();
             final ImageView img = new ImageView(context);
-            int maxWidth = ((int) UIUtil.width / 3) - UIUtil.dip2px(context, 8);
+            int maxWidth = (dm.widthPixels / 3) - UIUtil.dip2px(context, 5);
             int maxHeight = maxWidth;
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
+            linearLayout.setGravity(Gravity.CENTER);
             TextView textView = new TextView(context);
             textView.setWidth(maxWidth);
             textView.setGravity(Gravity.CENTER);
-            textView.setText(file.getVideoname().substring(0, 14));
+            StringBuffer filename = new StringBuffer(file.getVideoname().substring(8, 14));
+            filename.insert(2, ":");
+            filename.insert(5, ":");
+            textView.setText(filename.toString());
             LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(maxWidth, maxHeight);
             img.setLayoutParams(vp);
-            img.setScaleType(ImageView.ScaleType.FIT_XY);
             img.setPadding(UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5));
-            img.setImageDrawable(context.getResources().getDrawable(R.mipmap.def_video_img));
+            img.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            img.setCropToPadding(true);
+            img.setImageResource(R.mipmap.default_video);
             img.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

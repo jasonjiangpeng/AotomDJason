@@ -31,13 +31,13 @@ public class PhotoActivity extends BaseActivity {
         });
         String path = getIntent().getStringExtra("path");
         File file = new File(path);
-        ((TextView)findViewById(R.id.title_tv)).setText(file.getName());
+        ((TextView) findViewById(R.id.title_tv)).setText(file.getName());
         if (path == null) {
             finish();
         }
         iv = (PhotoView) findViewById(R.id.iv);
         if (path.startsWith("http"))
-            Glide.with(this).load(path).centerCrop().into(iv);
+            Glide.with(this).load(path).into(iv);
         else
             iv.setImageURI(Uri.fromFile(new File(path)));
     }
@@ -47,10 +47,10 @@ public class PhotoActivity extends BaseActivity {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             findViewById(R.id.title_bar).setVisibility(View.GONE);
-            iv.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT));
-        }else{
+            iv.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        } else {
             findViewById(R.id.title_bar).setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Tool.dp2px(this,250));
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Tool.dp2px(this, 250));
             params.addRule(RelativeLayout.CENTER_IN_PARENT);
             iv.setLayoutParams(params);
         }

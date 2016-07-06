@@ -2,15 +2,14 @@ package com.libs.ffmpeg;
 
 
 import zxc.com.gkdvr.utils.LibUtil;
+import zxc.com.gkdvr.utils.MyLogger;
 
 /**
  * Created by xiaoyunfei on 16/5/12.
  */
 public class FFmpegPlayer {
-    private OnVideoLostLinkListner listner;
 
-    public FFmpegPlayer(OnVideoLostLinkListner listner) {
-        this.listner = listner;
+    public FFmpegPlayer() {
     }
 
     private static LibUtil libUtil = LibUtil.getLibUtil();
@@ -42,10 +41,6 @@ public class FFmpegPlayer {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     public void videoLostLink() {
-        listner.OnVideoLostLink();
     }
 
-    public interface OnVideoLostLinkListner {
-       abstract void  OnVideoLostLink();
-    }
 }

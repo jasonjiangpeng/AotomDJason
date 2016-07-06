@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="110dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="gone">
@@ -73,13 +73,6 @@
             android:gravity="right|bottom"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_dual"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_margin="16dp"
-                android:background="@mipmap/ic_single"
-                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/btn_full"

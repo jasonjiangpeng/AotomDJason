@@ -11,7 +11,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin="5dp"
         android:padding="3dp"
-        android:src="@mipmap/ic_vd_back" />
+        android:src="@mipmap/back" />
 
 
     <RelativeLayout
@@ -35,6 +35,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="20dp"
+            android:visibility="invisible"
             android:layout_toRightOf="@+id/iv_main_remote_pic_main2"
             android:src="@mipmap/open_vol" />
 
@@ -43,8 +44,8 @@
             android:id="@+id/iv_main_takepic2"
             android:layout_width="35dp"
             android:layout_height="match_parent"
-            android:layout_toLeftOf="@+id/iv_main_back_por"
             android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/iv_main_back_por"
             android:src="@mipmap/bg_screenshot" />
 
 
@@ -62,8 +63,8 @@
         android:id="@+id/iv_main_record2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:src="@mipmap/ic_record_off" />
 
     <LinearLayout
@@ -80,4 +81,13 @@
         android:orientation="vertical"
         android:padding="5sp"
         android:visibility="gone"></LinearLayout>
+
+    <ImageView
+        android:id="@+id/change_camera"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        android:src="@mipmap/changecamera" />
 </RelativeLayout>

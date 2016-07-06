@@ -26,12 +26,17 @@ import zxc.com.gkdvr.utils.Tool;
  */
 public class SettingDeviceActivity extends BaseActivity implements View.OnClickListener {
     private int choose;
+    private NetParamas paramas;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting_device);
         initView();
+        if (!isWifiConnectedToDVR()) {
+            showConnectingDialog();
+            return;
+        }
     }
 
     private void initView() {
@@ -43,22 +48,8 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
             }
         });
         findViewById(R.id.device_reset).setOnClickListener(this);
-        findViewById(R.id.device_time).setOnClickListener(this);
-        findViewById(R.id.device_gsensor).setOnClickListener(this);
         findViewById(R.id.about).setOnClickListener(this);
-        findViewById(R.id.sdcard_format).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(SettingDeviceActivity.this).setMessage(getString(R.string.alert_format_SD)).setNegativeButton(getString(R.string.cancel), null)
-                        .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                formatSD();
-                            }
-                        }).create().show();
-
-            }
-        });
+        findViewById(R.id.sdcard_format).setOnClickListener(this);
     }
 
     private void formatSD() {
@@ -91,6 +82,10 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        if(!isWifiConnectedToDVR()){
+            showConnectingDialog();
+            return;
+        }
         switch (v.getId()) {
             case R.id.device_reset:
                 new AlertDialog.Builder(this).setMessage(getString(R.string.alert_reset)).setNegativeButton(getString(R.string.cancel), null)
@@ -101,52 +96,39 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
                             }
                         }).create().show();
                 break;
-            case R.id.device_time:
-                syncTime();
-                break;
-            case R.id.device_gsensor:
-                showGsensorDialog();
-                break;
             case R.id.about:
-                startActivity(new Intent(this,VersionInfoActivity.class));
+                getVersion();
+                break;
+            case R.id.sdcard_format:
+                new AlertDialog.Builder(SettingDeviceActivity.this).setMessage(getString(R.string.alert_format_SD)).setNegativeButton(getString(R.string.cancel), null)
+                        .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                formatSD();
+                            }
+                        }).create().show();
                 break;
         }
     }
 
-    private void showGsensorDialog() {
-        choose = Tool.getFromSharePrefrence(this,"gsensordpi");
-        new AlertDialog.Builder(this).setSingleChoiceItems(getResources().getStringArray(R.array.Gsensors), choose, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                choose = which;
-            }
-        }).setNegativeButton(getResources().getString(R.string.cancel), null)
-                .setPositiveButton(getResources().getString(R.string.ensure), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        setGsensor();
-                    }
-                }).create().show();
-    }
-
-    private void setGsensor() {
-        NetParamas paramas = new NetParamas();
-        paramas.put("type", "param");
-        paramas.put("action", "setgsensor");
-        paramas.put("gsensordpi", choose + "");
+    private void getVersion() {
+        paramas = new NetParamas();
+        paramas.put("type", "system");
+        paramas.put("action", "getversion");
         NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
             String s;
 
             @Override
             public void onResponse(final String result) {
-                runOnUiThread(new Runnable() {
+                MyLogger.i(result);
+                MyApplication.getCurrentActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             s = ResultParser.parse(result);
                             if (s.equalsIgnoreCase("ok")) {
-                                Tool.showToast(getString(R.string.setting_success));
-                                Tool.saveToSharePrefrence(SettingDeviceActivity.this,"gsensordpi",choose);
+                                String version = ResultParser.parseVersion(result);
+                                Tool.showToast(getString(R.string.version) + version.substring(0, version.length() - 1));
                             } else {
                                 Tool.showToast(s);
                             }
@@ -158,8 +140,9 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
                     }
                 });
             }
-        }, getString(R.string.Submiting), true);
+        }, getString(R.string.loading), true);
     }
+
 
     private void syncTime() {
         NetParamas paramas = new NetParamas();
@@ -176,7 +159,8 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
                     public void run() {
                         MyLogger.i(result);
                         Tool.removeProgressDialog();
-                        if (result.contains("OK")) Tool.showToast(getString(R.string.set_time_success));
+                        if (result.contains("OK"))
+                            Tool.showToast(getString(R.string.set_time_success));
                         else Tool.showToast(getString(R.string.set_time_fail));
                     }
                 });

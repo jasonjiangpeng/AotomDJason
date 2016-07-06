@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import zxc.com.gkdvr.MyApplication;
+import zxc.com.gkdvr.R;
 
 /**
  * Created by dk on 2016/6/2.
@@ -17,8 +18,22 @@ public class PermissionUtil {
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     @TargetApi(Build.VERSION_CODES.M)
+    public static boolean hasPermisson(final String permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(permissions);
+            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.M)
     public void askforPermission(final String permissions) {
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(permissions);
             if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
                 if (!MyApplication.getCurrentActivity().shouldShowRequestPermissionRationale(permissions)) {
@@ -42,8 +57,8 @@ public class PermissionUtil {
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(MyApplication.getCurrentActivity())
                 .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(MyApplication.getCurrentActivity().getString(R.string.ensure), okListener)
+                .setNegativeButton(MyApplication.getCurrentActivity().getString(R.string.cancel), null)
                 .create()
                 .show();
     }

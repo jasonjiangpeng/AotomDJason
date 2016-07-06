@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
 
         <TextView
             android:layout_width="0dp"
@@ -23,8 +23,7 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_mode"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
 
     </LinearLayout>
@@ -32,27 +31,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_marginTop="1px"
         android:background="@color/white"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:visibility="visible">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="10dp"
-            android:text="@string/isNeed_Loop_record"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:text="@string/isNeed_record_vol"
+            android:textSize="18sp" />
 
-        <Switch
-            android:id="@+id/idNeedLoop"
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/idNeedVol"
+            style="@style/SwitchButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -63,8 +62,8 @@
         android:layout_marginTop="1px"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
 
         <TextView
             android:layout_width="0dp"
@@ -72,8 +71,7 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_Resolution"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,8 +81,9 @@
         android:layout_marginTop="1px"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="0dp"
@@ -92,8 +91,7 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_Frames"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -103,8 +101,9 @@
         android:layout_marginTop="1px"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="0dp"
@@ -112,8 +111,7 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_Quality"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -123,8 +121,9 @@
         android:layout_marginTop="1px"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="0dp"
@@ -132,29 +131,9 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_Bitrate"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/record_vol"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1px"
-        android:background="@color/white"
-        android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="10dp"
-            android:text="@string/record_vol"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/record_time"
@@ -163,8 +142,8 @@
         android:layout_marginTop="1px"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
 
         <TextView
             android:layout_width="0dp"
@@ -172,8 +151,45 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="@string/record_time"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mirror"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1px"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:text="@string/photo_mirror"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/device_gsensor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1px"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:text="@string/device_gsensor"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </LinearLayout>

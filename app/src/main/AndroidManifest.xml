@@ -7,16 +7,30 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:name=".MyApplication"
+        android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/BaseAppTheme">
+        <meta-data
+            android:name="PGYER_APPID"
+            android:value="29dc2d2ffe1d482b179c65875f73bc07" >
+        </meta-data>
+
+        <meta-data
+            android:name="WEIBO_APPKEY"
+            android:value="1351762037" />
+
+        <!-- 分享 -->
+
         <activity
             android:name=".activitys.MainActivity"
+            android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.Start">
             <intent-filter>
@@ -43,14 +57,16 @@
             android:name=".activitys.RemoteFileActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activitys.VideoPlayActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".activitys.PlaybackActivity"
-            android:screenOrientation="landscape" />
+            android:name="net.sourceforge.simcpux.wxapi.WXEntryActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activitys.PlaybackActivity2"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".activitys.VideoPlayActivity"
+            android:screenOrientation="landscape" />
+
         <receiver android:name=".receiver.NetworkConnectChangedReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -58,5 +74,72 @@
                 <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <!--<activity-->
+            <!--android:name="com.mob.tools.MobUIShell"-->
+            <!--android:theme="@android:style/Theme.Translucent.NoTitleBar"-->
+            <!--android:configChanges="keyboardHidden|orientation|screenSize"-->
+            <!--android:windowSoftInputMode="stateHidden|adjustResize" >-->
+            <!--&lt;!&ndash;-->
+            	<!--AuthorizeAdapter表示一个继承自cn.sharesdk.framework.authorize.AuthorizeAdapter-->
+            	<!--的类，这个类可以监听到页面的生命周期，也可以获取授权页面的各种UI控件。-->
+            	<!--开发者可以通过继承AuthorizeAdapter，重写其方法，并获取各种UI来自定义这个页面的行为。-->
+            <!--&ndash;&gt;-->
+            <!--<meta-data android:name="AuthorizeAdapter" android:value="cn.sharesdk.demo.MyAdapter" />-->
+
+            <!--&lt;!&ndash;-->
+            	<!--QZoneWebShareAdapter表示一个继承自cn.sharesdk.tencent.qzone.QZoneWebShareAdapter-->
+            	<!--的类，这个类可以监听到页面的生命周期，也可以获QQ空间网页分享权页面的各种UI控件。-->
+            	<!--开发者可以通过继承QZoneWebShareAdapter，重写其方法，并获取各种UI来自定义这个页面的行为。-->
+            <!--<meta-data android:name="QZoneWebShareAdapter" android:value="cn.sharesdk.demo.MyQZoneWebShareAdapter" />-->
+            <!--<meta-data android:name="QQWebShareAdapter" android:value="cn.sharesdk.demo.MyQQWebShareAdapter" />-->
+            <!--&ndash;&gt;-->
+
+            <!--&lt;!&ndash;-->
+            	<!--Dropbox的SSO功能需要在此处添加一个对ACTION_VIEW事件的过滤器，其中的scheme是-->
+            	<!--“db-”前缀再开发者应用的加上appKey。如果此过滤器不设置，则不能完成SSO功能授权-->
+            <!--&ndash;&gt;-->
+            <!--<intent-filter>-->
+                <!--<data android:scheme="db-7janx53ilz11gbs" />-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+                <!--<category android:name="android.intent.category.BROWSABLE"/>-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
+
+            <!--<intent-filter>-->
+                <!--<data android:scheme="tencent100371282" />-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
+
+            <!--&lt;!&ndash; 调用新浪原生SDK，需要注册的回调activity &ndash;&gt;-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:noHistory="true"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tencent你的AppId" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.tencent.connect.common.AssistActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            />
+        <activity android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
+            android:configChanges="keyboardHidden|orientation"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" >
+        </activity>
     </application>
 </manifest>

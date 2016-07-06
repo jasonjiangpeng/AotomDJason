@@ -1,5 +1,6 @@
 package zxc.com.gkdvr.fragments;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,18 +12,16 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.tencent.mm.sdk.Build;
 import com.xw.repo.refresh.PullListView;
 import com.xw.repo.refresh.PullToRefreshLayout;
 
@@ -39,8 +38,8 @@ import okhttp3.Response;
 import zxc.com.gkdvr.Parser.ResultParser;
 import zxc.com.gkdvr.R;
 import zxc.com.gkdvr.activitys.PhotoActivity;
+import zxc.com.gkdvr.activitys.PlaybackActivity2;
 import zxc.com.gkdvr.activitys.RemoteFileActivity;
-import zxc.com.gkdvr.activitys.VideoPlayActivity;
 import zxc.com.gkdvr.adapter.ImageListAdapter;
 import zxc.com.gkdvr.adapter.VideoListAdapter;
 import zxc.com.gkdvr.entity.ImageEntity;
@@ -55,6 +54,7 @@ import zxc.com.gkdvr.utils.MyLogger;
 import zxc.com.gkdvr.utils.Net.NetCallBack;
 import zxc.com.gkdvr.utils.Net.NetParamas;
 import zxc.com.gkdvr.utils.Net.NetUtil;
+import zxc.com.gkdvr.utils.PermissionUtil;
 import zxc.com.gkdvr.utils.Tool;
 
 /**
@@ -164,6 +164,12 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                         }
                     });
             }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                super.onFailure(call, e);
+                listView.setPullUpEnable(false);
+            }
         });
     }
 
@@ -180,6 +186,10 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                 }
             } else {
                 Tool.showToast(getString(R.string.no_more_data));
+                if (videos.size() == 0) {
+                    pullToRefreshLayout.getRefreshFooterView().setVisibility(View.GONE);
+                    listView.setPullUpEnable(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,6 +224,10 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                 }
             } else {
                 Tool.showToast(getString(R.string.no_more_data));
+                if (images.size() == 0) {
+                    pullToRefreshLayout.getRefreshFooterView().setVisibility(View.GONE);
+                    listView.setPullUpEnable(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -291,6 +305,10 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                     unlockFile();
                 break;
             case R.id.download:
+                if (!PermissionUtil.hasPermisson(Manifest.permission_group.STORAGE)) {
+                    Tool.showToast(getString(R.string.permission_denied));
+                    return;
+                }
                 downloadFile();
                 break;
             case R.id.delete:
@@ -320,9 +338,13 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             url = Constance.BASE_IMAGE_URL + filename;
             intent = new Intent(getActivity(), PhotoActivity.class);
             intent.putExtra("path", url);
-        } else {
+        } else if (type == 1) {
             url = Constance.BASE_VIDEO_URL + filename;
-            intent = new Intent(getActivity(), VideoPlayActivity.class);
+            intent = new Intent(getActivity(), PlaybackActivity2.class);
+            intent.putExtra("videopath", url);
+        } else {
+            url = Constance.BASE_EVENT_URL + filename;
+            intent = new Intent(getActivity(), PlaybackActivity2.class);
             intent.putExtra("videopath", url);
         }
         startActivity(intent);
@@ -373,7 +395,14 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             is = response.body().byteStream();
             final long total = response.body().contentLength();
             long sum = 0;
-            File dir = new File(type == 0 ? FileAccessor.IMESSAGE_IMAGE : FileAccessor.IMESSAGE_VIDEO);
+            File dir;
+            if (type == 0) {
+                dir = new File(FileAccessor.IMESSAGE_IMAGE);
+            } else if (type == 1) {
+                dir = new File(FileAccessor.IMESSAGE_VIDEO);
+            } else {
+                dir = new File(FileAccessor.IMESSAGE_PROTECT);
+            }
             if (!dir.exists())
                 dir.mkdirs();
             nowFile = new File(dir, filename);

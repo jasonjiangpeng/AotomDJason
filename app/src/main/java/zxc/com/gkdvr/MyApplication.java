@@ -3,6 +3,9 @@ package zxc.com.gkdvr;
 import android.app.Activity;
 import android.app.Application;
 
+import com.pgyersdk.crash.PgyCrashManager;
+import com.pgyersdk.update.PgyUpdateManager;
+
 import java.util.Stack;
 
 import zxc.com.gkdvr.utils.FileAccessor;

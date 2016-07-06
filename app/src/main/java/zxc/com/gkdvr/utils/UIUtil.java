@@ -1,5 +1,6 @@
 package zxc.com.gkdvr.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
@@ -7,6 +8,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
+import zxc.com.gkdvr.MyApplication;
 import zxc.com.gkdvr.R;
 
 
@@ -27,7 +29,8 @@ public class UIUtil {
      */
     public static void init(Context context, float width, float height) {
         UIUtil.context = context;
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        DisplayMetrics dm = new DisplayMetrics();
+        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
         UIUtil.width = dm.widthPixels;
         UIUtil.height = dm.heightPixels;
         UIUtil.density = dm.density;
@@ -67,8 +70,8 @@ public class UIUtil {
      * Turn dp to px according to resolution
      */
     public static int dip2px(Context context, float dpValue) {
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        return (int) (dpValue * dm.density + 0.5f);
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpValue, context.getResources().getDisplayMetrics());
     }
 
     /**

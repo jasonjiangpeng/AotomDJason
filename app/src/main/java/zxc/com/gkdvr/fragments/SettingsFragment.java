@@ -15,6 +15,7 @@ import zxc.com.gkdvr.R;
 import zxc.com.gkdvr.activitys.SettingDeviceActivity;
 import zxc.com.gkdvr.activitys.SettingPhotoActivity;
 import zxc.com.gkdvr.activitys.SettingRecordActivity;
+import zxc.com.gkdvr.activitys.VersionInfoActivity;
 import zxc.com.gkdvr.utils.Constance;
 import zxc.com.gkdvr.utils.MyLogger;
 import zxc.com.gkdvr.utils.Net.NetCallBack;
@@ -44,6 +45,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         view.findViewById(R.id.recording_setting).setOnClickListener(this);
         view.findViewById(R.id.tack_photo).setOnClickListener(this);
         view.findViewById(R.id.device).setOnClickListener(this);
+        view.findViewById(R.id.version).setOnClickListener(this);
         //view.findViewById(R.id.about).setOnClickListener(this);
     }
 
@@ -63,41 +65,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 intent = new Intent(getActivity(), SettingDeviceActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.version:
+                intent = new Intent(getActivity(), VersionInfoActivity.class);
+                startActivity(intent);
+                break;
         }
 
     }
-
-
-    private void getVersion() {
-        paramas = new NetParamas();
-        paramas.put("type", "system");
-        paramas.put("action", "getversion");
-        NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
-            String s;
-
-            @Override
-            public void onResponse(final String result) {
-                MyLogger.i(result);
-                MyApplication.getCurrentActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            s = ResultParser.parse(result);
-                            if (s.equalsIgnoreCase("ok")) {
-                                Tool.showToast(getString(R.string.version) + ResultParser.parseVersion(result));
-                            } else {
-                                Tool.showToast(getString(R.string.taking_photo_fail) + s);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            Tool.removeProgressDialog();
-                        }
-                    }
-                });
-            }
-        }, getString(R.string.loading), true);
-    }
-
-
 }

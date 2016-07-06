@@ -1,6 +1,7 @@
 package zxc.com.gkdvr.utils;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.HashMap;
+import java.util.List;
 
 import zxc.com.gkdvr.MyApplication;
 import zxc.com.gkdvr.R;
@@ -38,7 +40,7 @@ public class Tool {
     public static int getFromSharePrefrence(Context context, String key) {
         SharedPreferences share = context.getSharedPreferences
                 (new WifiAdmin(context).getSSID(), Context.MODE_PRIVATE);
-        MyLogger.i(""+share.getInt(key, 0));
+        MyLogger.i("" + share.getInt(key, 0));
         return share.getInt(key, 0);
     }
 
@@ -48,13 +50,14 @@ public class Tool {
                 dialog = new ProgressDialog(context);
             }
             if (dialog.isShowing()) {
-                dialog.cancel();
+                dialog.setMessage(msg);
+                return;
             }
             dialog.setCancelable(cancelable);
             dialog.setMessage(msg);
             dialog.show();
             MyLogger.e("showProgressDialog" + System.currentTimeMillis());
-        } catch (WindowManager.BadTokenException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -134,63 +137,27 @@ public class Tool {
             }
         }).start();
     }
-
-    public static Bitmap getVideoThumbnail(String filePath) {
-        Bitmap bitmap = null;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(filePath);
-            bitmap = retriever.getFrameAtTime();
-        }
-        catch(IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                retriever.release();
-            }
-            catch (RuntimeException e) {
-                e.printStackTrace();
-            }
-        }
-        return bitmap;
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    private Bitmap createVideoThumbnail(String url, int width, int height) {
-        Bitmap bitmap = null;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        int kind = MediaStore.Video.Thumbnails.MINI_KIND;
-        try {
-            if (Build.VERSION.SDK_INT >= 14) {
-                retriever.setDataSource(url, new HashMap<String, String>());
-            } else {
-                retriever.setDataSource(url);
-            }
-            bitmap = retriever.getFrameAtTime();
-        } catch (IllegalArgumentException ex) {
-            // Assume this is a corrupt video file
-        } catch (RuntimeException ex) {
-            // Assume this is a corrupt video file.
-        } finally {
-            try {
-                retriever.release();
-            } catch (RuntimeException ex) {
-                // Ignore failures while cleaning up.
-            }
-        }
-        if (kind == MediaStore.Images.Thumbnails.MICRO_KIND && bitmap != null) {
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
-                    ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
-        }
-        return bitmap;
-    }
-
     public interface onVideoThumbnailLoadedListner {
-        abstract void onVideoThumbnailLoaded(Bitmap bitmap);
+        void onVideoThumbnailLoaded(Bitmap bitmap);
+    }
+
+    // 在进程中去寻找当前APP的信息，判断是否在前台运行
+    public static boolean isAppOnForeground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context
+                .getApplicationContext().getSystemService(
+                        Context.ACTIVITY_SERVICE);
+        String packageName = context.getApplicationContext().getPackageName();
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager
+                .getRunningAppProcesses();
+        if (appProcesses == null)
+            return false;
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.processName.equals(packageName)
+                    && appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

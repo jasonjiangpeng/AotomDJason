@@ -42,13 +42,14 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
         findViewById(R.id.photo_Saturation).setOnClickListener(this);
         findViewById(R.id.photo_Sharpness).setOnClickListener(this);
         findViewById(R.id.VideoFormat).setOnClickListener(this);
+        findViewById(R.id.photo_mirror).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.photo_Brightness:
-                choiceProgress = Tool.getFromSharePrefrence(this,"brightness");
+                choiceProgress = Tool.getFromSharePrefrence(this, "brightness");
                 showSeekbarDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -57,7 +58,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
             case R.id.photo_Contrast:
-                choiceProgress = Tool.getFromSharePrefrence(this,"contrast");
+                choiceProgress = Tool.getFromSharePrefrence(this, "contrast");
                 showSeekbarDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -66,7 +67,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
             case R.id.photo_frequency:
-                choisePosition = Tool.getFromSharePrefrence(this,"power_frequency");
+                choisePosition = Tool.getFromSharePrefrence(this, "power_frequency");
                 showSimpleChoiceDialog(getResources().getStringArray(R.array.frequency), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -75,7 +76,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
             case R.id.photo_Hue:
-                choiceProgress = Tool.getFromSharePrefrence(this,"hue");
+                choiceProgress = Tool.getFromSharePrefrence(this, "hue");
                 showSeekbarDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -84,7 +85,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
             case R.id.photo_Saturation:
-                choiceProgress = Tool.getFromSharePrefrence(this,"saturation");
+                choiceProgress = Tool.getFromSharePrefrence(this, "saturation");
                 showSeekbarDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -93,7 +94,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
             case R.id.photo_Sharpness:
-                choiceProgress = Tool.getFromSharePrefrence(this,"sharpness");
+                choiceProgress = Tool.getFromSharePrefrence(this, "sharpness");
                 showSeekbarDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -101,8 +102,17 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                     }
                 });
                 break;
+            case R.id.photo_mirror:
+                choisePosition = Tool.getFromSharePrefrence(this, "image_mirror");
+                showSimpleChoiceDialog(getResources().getStringArray(R.array.mirror), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setPhoto("image_mirror", choisePosition + "");
+                    }
+                });
+                break;
             case R.id.VideoFormat:
-                choisePosition = Tool.getFromSharePrefrence(this,"videoformat");
+                choisePosition = Tool.getFromSharePrefrence(this, "videoformat");
                 showSimpleChoiceDialog(getResources().getStringArray(R.array.VideoFormat), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -125,11 +135,9 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 choiceProgress = progress;
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
-
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
@@ -144,14 +152,13 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
         builder.create().show();
     }
 
-    private void setPhoto(final String key,final String value) {
+    private void setPhoto(final String key, final String value) {
         NetParamas paramas = new NetParamas();
         paramas.put("type", "param");
         paramas.put("action", "setimage");
         paramas.put(key, value);
         NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
             String s;
-
             @Override
             public void onResponse(final String result) {
                 MyLogger.i(result);
@@ -162,7 +169,7 @@ public class SettingPhotoActivity extends BaseActivity implements View.OnClickLi
                             s = ResultParser.parse(result);
                             if (s.equalsIgnoreCase("ok")) {
                                 Tool.showToast(getString(R.string.setting_success));
-                                Tool.saveToSharePrefrence(SettingPhotoActivity.this,key,Integer.parseInt(value));
+                                Tool.saveToSharePrefrence(SettingPhotoActivity.this, key, Integer.parseInt(value));
                             } else {
                                 Tool.showToast(s);
                             }
