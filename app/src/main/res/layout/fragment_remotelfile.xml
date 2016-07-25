@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/image_no_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
         android:background="@mipmap/no_data_local" />
 

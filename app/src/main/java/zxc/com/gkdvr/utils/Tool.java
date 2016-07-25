@@ -11,15 +11,23 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.UiThread;
+import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import zxc.com.gkdvr.MyApplication;
 import zxc.com.gkdvr.R;
@@ -56,7 +64,23 @@ public class Tool {
             dialog.setCancelable(cancelable);
             dialog.setMessage(msg);
             dialog.show();
-            MyLogger.e("showProgressDialog" + System.currentTimeMillis());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void showProgressDialog2(String msg, boolean cancelable, Context context) {
+        try {
+            if (dialog != null && dialog.isShowing()) {
+                return;
+            }
+            View view = View.inflate(context,R.layout.dialog,null);
+            TextView textView = (TextView) view.findViewById(R.id.id_tv_loadingmsg);
+            textView.setText(msg);
+            dialog = new ProgressDialog(context, R.style.Translucent_NoTitle);
+            dialog.show();
+            dialog.setContentView(view);
+            dialog.setCancelable(cancelable);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,27 +161,64 @@ public class Tool {
             }
         }).start();
     }
+
     public interface onVideoThumbnailLoadedListner {
         void onVideoThumbnailLoaded(Bitmap bitmap);
     }
 
     // 在进程中去寻找当前APP的信息，判断是否在前台运行
     public static boolean isAppOnForeground(Context context) {
-        ActivityManager activityManager = (ActivityManager) context
-                .getApplicationContext().getSystemService(
-                        Context.ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) context.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
         String packageName = context.getApplicationContext().getPackageName();
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager
-                .getRunningAppProcesses();
-        if (appProcesses == null)
-            return false;
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (appProcesses == null) return false;
         for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.processName.equals(packageName)
-                    && appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+            if (appProcess.processName.equals(packageName) && appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
                 return true;
-            }
         }
         return false;
+    }
+
+    public static boolean isNetconn(Context context) {
+        ConnectivityManager connMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean isWifiConn = networkInfo.isConnected();
+        networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        boolean isMobileConn = networkInfo.isConnected();
+        return isMobileConn || isWifiConn;
+    }
+
+    public static void changeDialogText(AlertDialog alertDialog){
+        try {
+            Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
+            mAlert.setAccessible(true);
+            Object alertController = mAlert.get(alertDialog);
+            Field mButtonNegative = alertController.getClass().getDeclaredField("mButtonNegative");
+            Field mButtonPositive = alertController.getClass().getDeclaredField("mButtonPositive");
+            mButtonNegative.setAccessible(true);
+            mButtonPositive.setAccessible(true);
+            Button btn1 = (Button) mButtonNegative.get(alertController);
+            Button btn2 = (Button) mButtonPositive.get(alertController);
+            btn1.setAllCaps(false);
+            btn2.setAllCaps(false);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isZh(Context context) {
+        Locale locale = context.getResources().getConfiguration().locale;
+        String language = locale.getLanguage();
+        if (language.endsWith("zh"))
+            return true;
+        else
+            return false;
     }
 
 }

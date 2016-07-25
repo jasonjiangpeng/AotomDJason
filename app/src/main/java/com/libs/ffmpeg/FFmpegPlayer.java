@@ -9,10 +9,12 @@ import zxc.com.gkdvr.utils.MyLogger;
  */
 public class FFmpegPlayer {
 
-    public FFmpegPlayer() {
-    }
-
     private static LibUtil libUtil = LibUtil.getLibUtil();
+    private onVideoLostLinkListner listner;
+
+    public FFmpegPlayer(onVideoLostLinkListner listner) {
+        this.listner = listner;
+    }
 
     static {
         libUtil.loadLibs();
@@ -22,11 +24,7 @@ public class FFmpegPlayer {
 
     public native void start();
 
-    public native void pause();
-
     public native void stop();
-
-    public native void reset();
 
     public native void setSurface(Object surface, int weight, int height);
 
@@ -36,11 +34,13 @@ public class FFmpegPlayer {
 
     public native void takeSpanShot(Object bitMap);
 
-    public native int setFrame();
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     public void videoLostLink() {
+        listner.videoLostLink();
     }
 
+    public interface onVideoLostLinkListner {
+        void videoLostLink();
+    }
 }

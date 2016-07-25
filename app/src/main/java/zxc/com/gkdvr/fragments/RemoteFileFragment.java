@@ -30,8 +30,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.Call;
 import okhttp3.Response;
@@ -73,6 +77,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
     private String[] searchType = new String[]{"image", "file", "file"};
     private ImageListAdapter mImageListAdapter;
     private VideoListAdapter videoListAdapter;
+    private boolean isFirstLoad = true;
+
     Handler han = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -121,8 +127,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
         imageNoData = (ImageView) view.findViewById(R.id.image_no_data);
         pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pulltorefreshlayout);
         pullToRefreshLayout.setOnRefreshListener(this);
+        pullToRefreshLayout.getRefreshFooterView().setVisibility(View.GONE);
         listView = (PullListView) view.findViewById(R.id.listView);
-        listView.setPullDownEnable(false);
         listView.setEmptyView(imageNoData);
         initData();
     }
@@ -161,6 +167,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                             } else {
                                 setVideos(result);
                             }
+                            pullToRefreshLayout.getRefreshFooterView().setVisibility(View.VISIBLE);
+                            isFirstLoad = false;
                         }
                     });
             }
@@ -185,7 +193,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                     setData();
                 }
             } else {
-                Tool.showToast(getString(R.string.no_more_data));
+                if (!isFirstLoad)
+                    Tool.showToast(getString(R.string.no_more_data));
                 if (videos.size() == 0) {
                     pullToRefreshLayout.getRefreshFooterView().setVisibility(View.GONE);
                     listView.setPullUpEnable(false);
@@ -193,6 +202,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             }
         } catch (Exception e) {
             e.printStackTrace();
+            listView.setAdapter(new VideoListAdapter(getActivity(), new LinkedHashMap<String, List<ListVideo>>(), null));
         }
     }
 
@@ -231,6 +241,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             }
         } catch (Exception e) {
             e.printStackTrace();
+            listView.setAdapter(new ImageListAdapter(getActivity(), new LinkedHashMap<String, List<ListImage>>(), null));
         }
     }
 
@@ -305,7 +316,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                     unlockFile();
                 break;
             case R.id.download:
-                if (!PermissionUtil.hasPermisson(Manifest.permission_group.STORAGE)) {
+                if (!PermissionUtil.hasPermisson(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Tool.showToast(getString(R.string.permission_denied));
                     return;
                 }
@@ -318,7 +329,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
     }
 
     private void deleteDialog() {
-        new AlertDialog.Builder(getActivity())
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.notice))
                 .setMessage(getString(R.string.notice_delete_file) + filename)
                 .setNegativeButton(getString(R.string.cancel), null)
@@ -329,6 +340,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                     }
                 })
                 .show();
+        Tool.changeDialogText(dialog);
     }
 
     private void openFile() {
@@ -351,6 +363,21 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
     }
 
     private void downloadFile() {
+        File dir;
+        if (type == 0) {
+            dir = new File(FileAccessor.IMESSAGE_IMAGE);
+        } else if (type == 1) {
+            dir = new File(FileAccessor.IMESSAGE_VIDEO);
+        } else {
+            dir = new File(FileAccessor.IMESSAGE_PROTECT);
+        }
+        if (!dir.exists())
+            dir.mkdirs();
+        nowFile = new File(dir, filename);
+        if (nowFile.exists()) {
+            Tool.showToast(getString(R.string.file_exists));
+            return;
+        }
         String url;
         if (type == 0) {
             url = Constance.BASE_IMAGE_URL + filename;
@@ -361,7 +388,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
         }
         NetUtil.download(url, new NetCallBack() {
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response)   {
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -388,31 +415,23 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
     public File saveFile(Response response, int type) throws Exception {
         isNeedDownload = true;
         InputStream is = null;
-        byte[] buf = new byte[5120];
+        byte[] buf = new byte[1024];
         int len;
         FileOutputStream fos = null;
         try {
             is = response.body().byteStream();
             final long total = response.body().contentLength();
             long sum = 0;
-            File dir;
-            if (type == 0) {
-                dir = new File(FileAccessor.IMESSAGE_IMAGE);
-            } else if (type == 1) {
-                dir = new File(FileAccessor.IMESSAGE_VIDEO);
-            } else {
-                dir = new File(FileAccessor.IMESSAGE_PROTECT);
-            }
-            if (!dir.exists())
-                dir.mkdirs();
-            nowFile = new File(dir, filename);
             fos = new FileOutputStream(nowFile);
-            while ((len = is.read(buf)) != -1 && isNeedDownload) {
+            while ((len = is.read(buf)) != -1 && isNeedDownload && sum < total) {
                 sum += len;
                 fos.write(buf, 0, len);
                 Message message = new Message();
                 message.what = PROG;
                 message.arg1 = (int) (sum * 100.0f / total);
+                if (sum == total) {
+                    message.arg1 = 100;
+                }
                 MyLogger.i("sum:" + sum);
                 han.sendMessage(message);
             }
@@ -420,6 +439,9 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             return nowFile;
         } catch (Exception e) {
             e.printStackTrace();
+            Tool.showToast(getString(R.string.download_fail));
+            Tool.removeProgressDialog();
+            nowFile.delete();
         } finally {
             try {
                 if (is != null) is.close();
@@ -558,17 +580,24 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 isNeedDownload = false;
-                nowFile.delete();
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        nowFile.delete();
+                    }
+                }, 2000);
+
             }
         });
         alertDialog = builder.show();
+        Tool.changeDialogText(alertDialog);
     }
 
-    private void loadMore() {
+    private void loadMore(final int index) {
         NetParamas paramas = new NetParamas();
         paramas.put("type", searchType[type]);
         paramas.put("action", search[type]);
-        paramas.put("index", (type == 0 ? images.size() : videos.size()) + "");
+        paramas.put("index", index + "");
         NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
             @Override
             public void onResponse(final String result) {
@@ -577,17 +606,36 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            pullToRefreshLayout.loadMoreFinish(true);
+                            if (index == 0)
+                                pullToRefreshLayout.refreshFinish(true);
+                            else
+                                pullToRefreshLayout.loadMoreFinish(true);
                             Tool.removeProgressDialog();
                             if (type == 0) {
+                                if (index == 0) images.clear();
                                 setImage(result);
                             } else {
+                                if (index == 0) videos.clear();
                                 setVideos(result);
                             }
                         }
                     });
             }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                super.onFailure(call, e);
+                if (getActivity() != null)
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pullToRefreshLayout.refreshFinish(true);
+                            pullToRefreshLayout.loadMoreFinish(true);
+                        }
+                    });
+            }
         }, getString(R.string.loading), true);
+
     }
 
 
@@ -596,12 +644,12 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
 
     @Override
     public void onRefresh(PullToRefreshLayout pullToRefreshLayout) {
-
+        loadMore(0);
     }
 
     @Override
     public void onLoadMore(PullToRefreshLayout pullToRefreshLayout) {
-        loadMore();
+        loadMore((type == 0 ? images.size() : videos.size()));
     }
 
 
@@ -617,6 +665,19 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                         entity.setVideostatus(1);
                     }
                     videos.add(entity);
+                    Collections.sort(videos, new Comparator<VideoEntity>() {
+                        @Override
+                        public int compare(VideoEntity lhs, VideoEntity rhs) {
+                            long ll = FileUtil.getRemoteFileTime(rhs.getVideoname());
+                            long lr = FileUtil.getRemoteFileTime(lhs.getVideoname());
+                            if (ll > lr) {
+                                return 1;
+                            } else if (ll < lr) {
+                                return -1;
+                            }
+                            return 0;
+                        }
+                    });
                     setData();
                 }
             }

@@ -47,6 +47,7 @@ public class AndroidMediaController extends MediaController implements IMediaCon
     private void initView(Context context) {
     }
 
+
     public void setSupportActionBar(@Nullable ActionBar actionBar) {
         mActionBar = actionBar;
         if (isShowing()) {

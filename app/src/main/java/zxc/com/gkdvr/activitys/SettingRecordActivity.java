@@ -164,7 +164,7 @@ public class SettingRecordActivity extends BaseActivity implements View.OnClickL
                                 Volume = parser.parseByKey(result, "Volume");
                                 Mute = parser.parseByKey(result, "Mute");
                                 RecMute = parser.parseByKey(result, "RecMute");
-                                vol.setChecked(RecMute.equals("1"));
+                                vol.setChecked(RecMute.equals("0"));
                                 vol.setOnCheckedChangeListener(SettingRecordActivity.this);
                                 getGsensor();
                             } else {
@@ -261,7 +261,7 @@ public class SettingRecordActivity extends BaseActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (!isWifiConnectedToDVR()) {
-            Tool.showToast(getString(R.string.no_device));
+            showConnectingDialog();
             return;
         }
         switch (v.getId()) {
@@ -560,7 +560,7 @@ public class SettingRecordActivity extends BaseActivity implements View.OnClickL
             Tool.showToast(getString(R.string.no_device));
             return;
         }
-        setMute(isChecked ? 1 : 0);
+        setMute(isChecked ? 0 : 1);
     }
 
     private void setMute(final int state) {
@@ -582,7 +582,7 @@ public class SettingRecordActivity extends BaseActivity implements View.OnClickL
                             if (s.equalsIgnoreCase("ok")) {
                                 Tool.showToast(getString(R.string.setting_success));
                                 RecMute = String.valueOf(state);
-                                Tool.saveToSharePrefrence(SettingRecordActivity.this,"recmute",state);
+                                Tool.saveToSharePrefrence(SettingRecordActivity.this, "recmute", state);
                             } else {
                                 Tool.showToast(s);
                             }

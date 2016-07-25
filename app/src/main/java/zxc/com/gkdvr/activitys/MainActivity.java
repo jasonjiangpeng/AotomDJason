@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,12 +18,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,11 +30,13 @@ import android.widget.TextView;
 import com.libs.ffmpeg.FFmpegPlayer;
 import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import okhttp3.Call;
 import zxc.com.gkdvr.MyApplication;
 import zxc.com.gkdvr.Parser.RecStatusParser;
 import zxc.com.gkdvr.Parser.ResultParser;
@@ -55,51 +56,36 @@ import zxc.com.gkdvr.utils.Tool;
 import zxc.com.gkdvr.utils.WifiAdmin;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        NetworkConnectChangedReceiver.OnNetChangeListener {
-    private LinearLayout lastTab = null;
-    private RelativeLayout rlDuallaoyut;//视频画面
-    private RelativeLayout rlBottomLayout;//底部主页面布局
-    private RelativeLayout titleLayout;//顶部标题栏
-    private RelativeLayout rootView;//顶部标题栏
+        NetworkConnectChangedReceiver.OnNetChangeListener, FFmpegPlayer.onVideoLostLinkListner {
+    private LinearLayout lastTab, record_time;
+    private RelativeLayout rlDuallaoyut, rlBottomLayout, titleLayout, rootView, vVideoControl;
     private FFmpegPlayer fFmpegPlayer;
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
-    private ImageView iv_main_takepic;
-    private ImageView iv_main_record;
-    private ImageView iv_main_remote_pic_main;
-    private ImageView iv_main_takepic2;
-    private ImageView iv_main_record2;
-    private ImageView iv_main_remote_pic_main2;
-    private ImageView ivBackground;
-    private ImageView ivVol;
-    private ImageView change_camera;
-    private View llVideoCamera;
-    private View llImage;
-    private View llSetting;
+    private ImageView iv_main_takepic, iv_main_record, iv_main_remote_pic_main, iv_main_takepic2, iv_main_record2,
+            iv_main_remote_pic_main2, ivBackground, title_wifi, change_camera;
+    private View llVideoCamera, llImage, llSetting;
     private int tabImgs[][] = {{R.mipmap.ic_img_a, R.mipmap.photos_off},
             {R.mipmap.ic_video_a, R.mipmap.ic_video_b},
             {R.mipmap.ic_setting_a, R.mipmap.ic_setting_b}};
-    private RelativeLayout vVideoControl;
-    private TextView tvTip;
-    private TextView title;
-    private TextView titleRight;
+    private TextView tvTip, title, titleRight, camera_num;
     private boolean isRtsp = false;
-    private LinearLayout record_time;
     private boolean isSurfaceCreated = false;
     private ScreenActionReceiver receiver;
     public static IWeiboShareAPI mWeiboShareAPI;
     private NetBroadcastReceiver netReceiver;
     private String currentUri = Constance.RTSP_URL;
     public static int recMute = -1;
+    private Timer recStateTimer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_preview);
         if (isWifiConnectedToDVR())
             getRecord();
@@ -108,8 +94,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         if (!isWifiConnectedToDVR()) showConnectingDialog();
         onTabClickListner.onClick(llVideoCamera);
         bindEvent();
-        new PermissionUtil().askforPermission(Manifest.permission_group.STORAGE);
-        if (PermissionUtil.hasPermisson(Manifest.permission_group.STORAGE))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            new PermissionUtil().askforStoragePermission();
+        if (PermissionUtil.hasPermisson(Manifest.permission.WRITE_EXTERNAL_STORAGE))
             FileAccessor.initFileAccess();
     }
 
@@ -118,7 +105,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         surfaceView.setZOrderOnTop(false);
         surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         findViewById(R.id.title_left).setVisibility(View.GONE);
-        fFmpegPlayer = new FFmpegPlayer();
+        fFmpegPlayer = new FFmpegPlayer(this);
         tvTip = (TextView) findViewById(R.id.tvTip);
         title = (TextView) findViewById(R.id.title_tv);
         titleRight = (TextView) findViewById(R.id.title_right);
@@ -127,6 +114,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         iv_main_takepic = (ImageView) findViewById(R.id.iv_main_takepic);
         ivBackground = (ImageView) findViewById(R.id.ivBackground);
         iv_main_record = (ImageView) findViewById(R.id.iv_main_record);
+        title_wifi = (ImageView) findViewById(R.id.title_wifi);
         iv_main_remote_pic_main = (ImageView) findViewById(R.id.iv_main_remote_pic_main);
         llVideoCamera = findViewById(R.id.llVideoCamera);
         llImage = findViewById(R.id.llImage);
@@ -140,10 +128,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         vVideoControl = (RelativeLayout) getLayoutInflater().inflate(R.layout.view_video_control, null, false);
         change_camera = (ImageView) vVideoControl.findViewById(R.id.change_camera);
         change_camera.setOnClickListener(changeCameraListner);
-        ivVol = (ImageView) vVideoControl.findViewById(R.id.ivVol);
-        ivVol.setOnClickListener(this);
         vVideoControl.findViewById(R.id.iv_main_back_por).setOnClickListener(this);
         iv_main_takepic2 = (ImageView) vVideoControl.findViewById(R.id.iv_main_takepic2);
+        camera_num = (TextView) vVideoControl.findViewById(R.id.camera_num);
         iv_main_record2 = (ImageView) vVideoControl.findViewById(R.id.iv_main_record2);
         iv_main_remote_pic_main2 = (ImageView) vVideoControl.findViewById(R.id.iv_main_remote_pic_main2);
         vVideoControl.findViewById(R.id.ivBack).setOnClickListener(new View.OnClickListener() {
@@ -161,12 +148,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (!isWifiConnectedToDVR() && isShowRtsp) {
                         showConnectingDialog();
                     }
+                    if (isWifiConnectedToDVR() && !isRtsp) setMedia();
+                    //TODO
                 } else {
                     if (vVideoControl.getVisibility() == View.VISIBLE) {
                         vVideoControl.setVisibility(View.GONE);
                     } else {
                         vVideoControl.setVisibility(View.VISIBLE);
-
                     }
                 }
             }
@@ -179,7 +167,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private View.OnClickListener changeCameraListner = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Tool.showProgressDialog(getString(R.string.changing), false, MainActivity.this);
+            v.setClickable(false);
+            Tool.showProgressDialog2(getString(R.string.changing), false, MainActivity.this);
             fFmpegPlayer.stop();
             isRtsp = false;
             mHandler.postDelayed(new Runnable() {
@@ -192,42 +181,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         currentCamera = 1;
                         currentUri = Constance.RTSP_URL;
                     }
+                    Tool.removeProgressDialog();
                     surfaceView.setVisibility(View.GONE);
                     surfaceView.setVisibility(View.VISIBLE);
                     title.setText(getString(R.string.camera) + currentCamera);
-
+                    camera_num.setText(getString(R.string.camera) + currentCamera);
                 }
-            }, 2000);
+            }, 1000);
         }
     };
 
-    //    private void getAudio() {
-//        NetParamas paramas = new NetParamas();
-//        paramas.put("type", "param");
-//        paramas.put("action", "getaudio");
-//        NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
-//            @Override
-//            public void onResponse(final String result) {
-//                MyLogger.i(result);
-//                runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            ResultParser parser = new ResultParser();
-//                            if (result.contains("OK")) {
-//                                recMute = Integer.valueOf(parser.parseByKey(result, "RecMute"));
-//                            } else {
-//                                Tool.showToast(parser.parse(result));
-//                            }
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//            }
-//        });
-//    }
     public static int recTime = -1;
 
     private void getRecord() {
@@ -255,25 +218,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     }
                 });
             }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
         });
     }
 
     @Override
     public void showConnectingDialog() {
+        title_wifi.setVisibility(View.VISIBLE);
         titleRight.setVisibility(View.GONE);
         change_camera.setVisibility(View.GONE);
+        camera_num.setVisibility(View.GONE);
+        if (connectionDialog != null && connectionDialog.isShowing()) return;
         connectionDialog = new android.support.v7.app.AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.notice))
                 .setMessage(getString(R.string.connecting_device))
                 .setPositiveButton(getString(R.string.connecting), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent();
-                        intent.setAction("android.net.wifi.PICK_WIFI_NETWORK");
+//                        Intent intent = new Intent();
+//                        intent.setAction("android.net.wifi.PICK_WIFI_NETWORK");
+//                        startActivity(intent);
+                        Intent intent = new Intent(MainActivity.this, WifiListActivity.class);
                         startActivity(intent);
                     }
                 }).show();
+        Tool.changeDialogText(connectionDialog);
     }
-
 
     private void showVideo() {
         if (!isSurfaceCreated) {
@@ -305,21 +277,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private Timer timeOut;
+    private boolean isTimeOut = false;
 
     private synchronized void setMedia() {
         MyLogger.i("setMedia");
-        if (!isWifiConnectedToDVR()) {
+        if (!isWifiConnectedToDVR())
             return;
-        }
-        if (isRtsp) {
+        if (isRtsp)
             return;
-        }
+        if (connectionDialog != null && connectionDialog.isShowing()) connectionDialog.dismiss();
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Tool.showProgressDialog(getString(R.string.loading), false, MainActivity.this);
+                Tool.showProgressDialog2(getString(R.string.buffering), false, MainActivity.this);
+
             }
         });
+        isTimeOut = false;
         timeOut = new Timer();
         timeOut.schedule(new TimerTask() {
             @Override
@@ -330,11 +304,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         Tool.removeProgressDialog();
                         MyLogger.i("timeOut");
                         Tool.showToast(getString(R.string.load_video_fail));
-                        fFmpegPlayer.reset();
+                        titleRight.setClickable(true);
+                        change_camera.setClickable(true);
+                        isTimeOut = true;
                     }
                 });
             }
-        }, 20000);
+        }, 15000);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -351,18 +327,74 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         super.onResume();
         if (isWifiConnectedToDVR()) {
             if (isDoubleCamera() && isShowRtsp) {
-                titleRight.setVisibility(View.VISIBLE);
+                if (lastFragment == null) {
+                    titleRight.setVisibility(View.VISIBLE);
+                }
                 change_camera.setVisibility(View.VISIBLE);
                 title.setText(getString(R.string.camera) + currentCamera);
+                camera_num.setVisibility(View.VISIBLE);
+                camera_num.setText(getString(R.string.camera) + currentCamera);
             }
             ivBackground.setVisibility(View.GONE);
+            title_wifi.setVisibility(View.GONE);
+            i = 0;
             syncTime();
             if (!isRecording) getRecState();
             if (isShowRtsp) showVideo();
             if (recTime == -1) getRecord();
+            startRecState();
+            if (connectionDialog != null && connectionDialog.isShowing())
+                connectionDialog.dismiss();
         } else {
             ivBackground.setVisibility(View.VISIBLE);
+            if (isShowRtsp)
+                title_wifi.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void startRecState() {
+        if (recStateTimer != null) {
+            recStateTimer.cancel();
+            recStateTimer = null;
+        }
+        recStateTimer = new Timer();
+        recStateTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                NetParamas paramas = new NetParamas();
+                paramas.put("type", "system");
+                paramas.put("action", "getrecstatus");
+                NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
+                    @Override
+                    public void onResponse(final String result) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (result.contains("OK")) {
+                                    String recStatus = RecStatusParser.parse(result);
+                                    if (recStatus.equals("0")) {
+                                        if (isRecording) {
+                                            isRecording = false;
+                                            recStop();
+                                        }
+                                    } else {
+                                        if (!isRecording) {
+                                            isRecording = true;
+                                            recStart();
+                                        }
+                                    }
+                                }
+                                ;
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                    }
+                });
+            }
+        }, 5000, 5000);
     }
 
     private void bindEvent() {
@@ -370,6 +402,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         llImage.setOnClickListener(onTabClickListner);
         llSetting.setOnClickListener(onTabClickListner);
         iv_main_takepic.setOnClickListener(this);
+        title_wifi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, WifiListActivity.class));
+            }
+        });
         iv_main_record.setOnClickListener(this);
         iv_main_remote_pic_main.setOnClickListener(this);
         iv_main_takepic2.setOnClickListener(this);
@@ -383,7 +421,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
         intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         registerReceiver(receiver, intentFilter);
-        registerReceiver(netReceiver, new IntentFilter(Constance.ACTION_NET_CONN));
+        IntentFilter filter = new IntentFilter(Constance.ACTION_NET_CONN);
+        filter.setPriority(200);
+        registerReceiver(netReceiver, filter);
     }
 
     public void onClick(View v) {
@@ -410,6 +450,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 startActivity(new Intent(this, RemoteFileActivity.class));
                 break;
             case R.id.btn_full:
+                if (!isRtsp) {
+                    return;
+                }
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 } else {
@@ -417,7 +460,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
             case R.id.ivVol:
-                setMute();
+//                setMute();
                 break;
         }
 
@@ -433,6 +476,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 case R.id.llImage:
                     title.setText(getString(R.string.photo));
                     setTabSelected(0);
+
                     v.setTag(0);
                     setTabSelectColorChange((LinearLayout) v, true);
                     break;
@@ -480,7 +524,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                             if (s.equalsIgnoreCase("ok")) {
                                 Tool.showToast(getString(R.string.setting_success));
                                 isMute = !isMute;
-                                changeMuteIcon();
+//                                changeMuteIcon();
                             } else {
                                 Tool.showToast(s);
                             }
@@ -495,22 +539,32 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }, getString(R.string.Submiting), true);
     }
 
-    private void changeMuteIcon() {
-        if (isMute) {
-            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.close_vol));
-            Tool.saveToSharePrefrence(this, "recmute", 1);
-        } else {
-            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.open_vol));
-            Tool.saveToSharePrefrence(this, "recmute", 0);
-        }
+//    private void changeMuteIcon() {
+//        if (isMute) {
+//            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.close_vol));
+//            Tool.saveToSharePrefrence(this, "recmute", 1);
+//        } else {
+//            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.open_vol));
+//            Tool.saveToSharePrefrence(this, "recmute", 0);
+//        }
+//    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        fFmpegPlayer.stop();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        fFmpegPlayer.stop();
         isRtsp = false;
+        if (recStateTimer != null)
+            recStateTimer.cancel();
     }
+
+    private int i;
 
     private void syncTime() {
         NetParamas paramas = new NetParamas();
@@ -527,9 +581,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         MyLogger.i(result);
                         if (result.contains("OK")) {
 //                                Tool.showToast(result);
-                        } else Tool.showToast(getString(R.string.set_time_fail));
+                        } else {
+                            if (i < 3) {
+                                syncTime();
+                                i++;
+                            } else {
+                                i = 0;
+                                Tool.showToast(getString(R.string.set_time_fail));
+                            }
+                        }
+
                     }
                 });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (i < 3) {
+                    syncTime();
+                    i++;
+                } else
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            i = 0;
+                            Tool.showToast(getString(R.string.set_time_fail));
+                        }
+                    });
             }
         });
     }
@@ -544,7 +622,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyLogger.i(result);
                         if (result.contains("OK")) {
                             String recStatus = RecStatusParser.parse(result);
                             if (recStatus.equals("0")) {
@@ -553,9 +630,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                                 isRecording = true;
                                 recStart();
                             }
-                        } else Tool.showToast(getString(R.string.get_record_state_fail));
+                        }
                     }
                 });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
             }
         });
     }
@@ -585,11 +666,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                                 if (isRecording) {
                                     recStart();
                                 } else {
-                                    recordTimer.cancel();
-                                    iv_main_record2.setImageDrawable(getResources().getDrawable(R.mipmap.ic_record_off));
-                                    iv_main_record.setImageDrawable(getResources().getDrawable(R.mipmap.ic_main_record));
-                                    record_time.setVisibility(View.GONE);
-                                    Tool.showToast(getString(R.string.recording_end));
+                                    recStop();
                                 }
                             } else {
                                 Tool.showToast(getString(R.string.recording_fail) + ResultParser.parse(result));
@@ -608,14 +685,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }, getString(R.string.Submiting), true);
     }
 
+    private void recStop() {
+        recordTimer.cancel();
+        iv_main_record2.setImageDrawable(getResources().getDrawable(R.mipmap.ic_record_off));
+        iv_main_record.setImageDrawable(getResources().getDrawable(R.mipmap.ic_main_record));
+        record_time.setVisibility(View.GONE);
+        Tool.showToast(getString(R.string.recording_end));
+    }
+
     private void recStart() {
-        if (recTime == 0) {
-            recordingTime = 60000;
+        if (recTime == 2) {
+            recordingTime = 300000;
         } else if (recTime == 1) {
             recordingTime = 180000;
         } else {
-            recordingTime = 300000;
+            recordingTime = 60000;
         }
+        Tool.showToast(getString(R.string.recording_start));
         recordTimer = new Timer();
         recordTimer.schedule(new TimerTask() {
             @Override
@@ -623,7 +709,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 upDateRecordTime();
             }
         }, 0, 1000);
-//        Tool.showToast(getString(R.string.recording_start));
         record_time.setVisibility(View.VISIBLE);
         iv_main_record2.setImageDrawable(getResources().getDrawable(R.mipmap.ic_record_on));
         iv_main_record.setImageDrawable(getResources().getDrawable(R.mipmap.ic_main_record_stop));
@@ -636,12 +721,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 tvTip.setText(new SimpleDateFormat("mm:ss").format(new Date(recordingTime)));
                 recordingTime -= 1000;
                 if (recordingTime == 0) {
-                    if (recTime == 0) {
-                        recordingTime = 60000;
+                    if (recTime == 2) {
+                        recordingTime = 300000;
                     } else if (recTime == 1) {
                         recordingTime = 180000;
                     } else {
-                        recordingTime = 300000;
+                        recordingTime = 60000;
                     }
                 }
             }
@@ -657,6 +742,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     //拍照
     private void performClickTakePic() {
+        Tool.showProgressDialog2(getString(R.string.photoing), false, this);
         NetParamas paramas = new NetParamas();
         paramas.put("type", "snapshot");
         NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
@@ -669,6 +755,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     public void run() {
                         try {
                             s = ResultParser.parse(result);
+                            MyLogger.i(result);
                             if (s.equalsIgnoreCase("ok")) {
                                 Tool.showToast(getString(R.string.taking_photo_success));
                             } else Tool.showToast(getString(R.string.taking_photo_fail));
@@ -681,7 +768,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 });
 
             }
-        }, getResources().getString(R.string.photoing), false);
+        }, false);
     }
 
     public void setTabSelectColorChange(LinearLayout root, boolean isSelected) {
@@ -698,6 +785,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             MyLogger.e("what)---------->>" + msg.what);
             switch (msg.what) {
                 case 0:
+                    if (isTimeOut) return;
                     timeOut.cancel();
                     MyLogger.e("setSurface" + System.currentTimeMillis());
                     if (surfaceHolder == null) return;
@@ -706,10 +794,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     isRtsp = true;
                     ivBackground.setVisibility(View.GONE);
                     Tool.removeProgressDialog();
+                    titleRight.setClickable(true);
+                    change_camera.setClickable(true);
                     return;
                 case 3:
                     f = new PhotoFragment();
                     isShowRtsp = false;
+                    title_wifi.setVisibility(View.GONE);
                     record_time.setVisibility(View.GONE);
                     titleRight.setVisibility(View.GONE);
                     switchFragment(lastFragment, f, msg.arg1);
@@ -717,6 +808,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 case 4:
                     if (isDoubleCamera()) {
                         titleRight.setVisibility(View.VISIBLE);
+                        change_camera.setVisibility(View.VISIBLE);
+                        camera_num.setVisibility(View.VISIBLE);
                         title.setText(getString(R.string.camera) + currentCamera);
                     }
                     if (!isShowRtsp && !isRtsp) {
@@ -725,12 +818,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (isRecording) {
                         record_time.setVisibility(View.VISIBLE);
                     }
+                    if (!isWifiConnectedToDVR()) title_wifi.setVisibility(View.VISIBLE);
                     isShowRtsp = true;
                     switchFragment(lastFragment, f, msg.arg1);
                     break;
                 case 5:
                     f = new SettingsFragment();
                     isShowRtsp = false;
+                    title_wifi.setVisibility(View.GONE);
                     titleRight.setVisibility(View.GONE);
                     record_time.setVisibility(View.GONE);
                     switchFragment(lastFragment, f, msg.arg1);
@@ -741,6 +836,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     MyLogger.i("load_video_fail");
                     Tool.showToast(getString(R.string.load_video_fail));
                     Tool.removeProgressDialog();
+                    titleRight.setClickable(true);
+                    change_camera.setClickable(true);
                     break;
             }
 
@@ -770,13 +867,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (recMute == 1) {
-                isMute = false;
-                ivVol.setImageResource(R.mipmap.open_vol);
-            } else {
-                isMute = true;
-                ivVol.setImageResource(R.mipmap.close_vol);
-            }
+//            if (recMute == 1) {
+//                isMute = false;
+//                ivVol.setImageResource(R.mipmap.open_vol);
+//            } else {
+//                isMute = true;
+//                ivVol.setImageResource(R.mipmap.close_vol);
+//            }
             if (isShowRtsp) {
                 vVideoControl.setVisibility(View.VISIBLE);
                 rlBottomLayout.setVisibility(View.GONE);
@@ -817,19 +914,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             else showExitDialog();
         }
-        return super.onKeyDown(keyCode, event);
+        return true;
     }
 
     private void showExitDialog() {
-        new AlertDialog.Builder(this).setTitle(getString(R.string.notice)).setMessage(getString(R.string.notice_exit))
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(getString(R.string.notice)).setMessage(getString(R.string.notice_exit))
                 .setNegativeButton(getString(R.string.cancel), null)
                 .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        new WifiAdmin(MainActivity.this).disconnectWifi();
-                        MyApplication.exit();
+                        try {
+                            new WifiAdmin(MainActivity.this).disconnectWifi();
+                            MyApplication.exit();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }).show();
+        Tool.changeDialogText(dialog);
     }
 
     @Override
@@ -840,16 +942,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         NetworkConnectChangedReceiver.mListeners.remove(this);
         fFmpegPlayer = null;
     }
-//    @Override
-//    public void OnVideoLostLink() {
-//        MyLogger.i("OnVideoLostLink");
-//    }
 
     @Override
     public void onNetChange(String message) {
         MyLogger.i(message);
         if (message.contains("DISCONNECTED")) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            fFmpegPlayer.stop();
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             Tool.showToast(getString(R.string.device_disconnection));
             isRtsp = false;
             surfaceView.setVisibility(View.GONE);
@@ -858,7 +958,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             showConnectingDialog();
             if (isRecording) {
                 recordTimer.cancel();
-                //isRecording=false;
+                recStateTimer.cancel();
+                isRecording = false;
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -869,38 +970,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
     }
 
-//    @Override
-//    public void onResponse(BaseResponse baseResponse) {
-//        if (baseResponse != null) {
-//            switch (baseResponse.errCode) {
-//                case WBConstants.ErrorCode.ERR_OK:
-//                    Toast.makeText(this, R.string.weibosdk_demo_toast_share_success, Toast.LENGTH_LONG).show();
-//                    break;
-//                case WBConstants.ErrorCode.ERR_CANCEL:
-//                    Toast.makeText(this, R.string.weibosdk_demo_toast_share_canceled, Toast.LENGTH_LONG).show();
-//                    break;
-//                case WBConstants.ErrorCode.ERR_FAIL:
-//                    Toast.makeText(this,
-//                            getString(R.string.weibosdk_demo_toast_share_failed) + "Error Message: " + baseResponse.errMsg,
-//                            Toast.LENGTH_LONG).show();
-//                    break;
-//            }
-//        }
-//    }
-
+    @Override
+    public void videoLostLink() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Tool.showToast(getString(R.string.load_video_fail));
+                isRtsp = false;
+            }
+        });
+    }
 
     class NetBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             MyLogger.i("onReceive");
-            if (connectionDialog.isShowing()) connectionDialog.dismiss();
-            if (isDoubleCamera()) {
+            if (connectionDialog != null && connectionDialog.isShowing())
+                connectionDialog.dismiss();
+            title_wifi.setVisibility(View.GONE);
+            if (isDoubleCamera() && isShowRtsp) {
                 titleRight.setVisibility(View.VISIBLE);
                 change_camera.setVisibility(View.VISIBLE);
-            }
-            if (isRecording) {
-                recStart();
+                camera_num.setVisibility(View.VISIBLE);
             }
             if (Tool.isAppOnForeground(context)) {
                 mHandler.postDelayed(new Runnable() {
@@ -909,6 +1001,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         setMedia();
                     }
                 }, 1000);
+                startRecState();
             }
         }
     }

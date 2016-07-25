@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GKDVR</string>
+    <string name="remote_file">Remote Files</string>
+    <string name="photo">Local Photo</string>
+    <string name="camera">Camera</string>
+    <string name="setting">set up</string>
+    <string name="loading">Loading</string>
+    <string name="buffering">Buffering</string>
+    <string name="notice">Note</string>
+    <string name="notice_delete_file">"Delete the file?\n"</string>
+    <string name="file_exists">"File exist "</string>
+    <string name="notice_exit">Exit now?</string>
+    <string name="no_device">No device</string>
+    <string name="connecting">Connecting now</string>
+    <string name="wifi_connecting">Connecting</string>
+    <string name="wifi_connecting_fail">Connection  failed</string>
+    <string name="connecting_device">Device not online, connecting now?</string>
+    <string name="Submiting">Submiting</string>
+    <string name="changing">Being switched</string>
+    <string name="photoing">Photoing</string>
+    <string name="scaning">Refreshing</string>
+    <string name="taking_photo_fail">Photo failed</string>
+    <string name="taking_photo_success">Photo success</string>
+    <string name="lock_file_success">Lock success</string>
+    <string name="unlock_file_success">Unlock success</string>
+    <string name="delete_file_success">Delete success</string>
+    <string name="get_version_fail">Get version falied</string>
+    <string name="device_disconnection">Device disconnect</string>
+    <string name="device_list">Device list</string>
+    <string name="change_camera">Switching</string>
+    <string name="restore_fail">Restore factory settings fail</string>
+    <string name="load_video_fail">Video loading fail</string>
+    <string name="restore_suceess">Restore factory settings success</string>
+    <string name="device_restoring">Restarting now</string>
+    <string name="format_sd_fail">Format card fail</string>
+    <string name="format_sd_success">Format card success</string>
+    <string name="setting_fail">Set up fail</string>
+    <string name="setting_success">Set up success</string>
+    <string name="set_record_fail">Set parameters failed</string>
+    <string name="set_time_fail">Time Sync failed</string>
+    <string name="get_record_state_fail">Get recording status failed</string>
+    <string name="get_record_time_fail">Get Loop recording time failed</string>
+    <string name="set_time_success">Time Sync success</string>
+    <string name="recording_fail">Recording fail</string>
+    <string name="recording_start">Recording now</string>
+    <string name="recording_end">Recording end</string>
+    <string name="net_fail">Network anomaly, please checking</string>
+    <string name="connect_not_ready">No connect</string>
+    <string name="pls_stop_recording">Stop recording first</string>
+    <string name="image_unit">photo</string>
+    <string name="video_unit">video</string>
+    <string name="open_file">Open</string>
+    <string name="lock_file">Lock</string>
+    <string name="unlock_file">Unlock</string>
+    <string name="download_file">Download</string>
+    <string name="delete_file">Delete</string>
+    <string name="share_file">Sharing</string>
+    <string name="share_sina_weibo">Micro-blog Sina</string>
+    <string name="share_wechat">WeChat friends</string>
+    <string name="share_qq">QQ friends</string>
+    <string name="share_qzone">QQ zone</string>
+    <string name="share_wechat_moment">WeChat moments</string>
+    <string name="delete_success">Delete success</string>
+    <string name="delete_fail">Delete fail</string>
+    <string name="download_over">Download success</string>
+    <string name="download_fail">Download fail</string>
+    <string name="cancel">Cancel</string>
+    <string name="ensure">OK</string>
+    <string name="deleting">Deleting</string>
+    <string name="setting_sdcard">TF card</string>
+    <string name="image_setting">Image setting</string>
+    <string name="video_setting">Record</string>
+    <string name="photo_setting">Photo</string>
+    <string name="device_setting">Device</string>
+    <string name="version">Version</string>
+    <string name="restore">Restart</string>
+    <string name="about_setting">About</string>
+    <string name="no_more_data">No data</string>
+    <string name="current_version_info">Version:</string>
+    <string name="sd_store">Card space</string>
+    <string name="sd_total_size">Total</string>
+    <string name="sd_available">Free</string>
+    <string name="format">Format</string>
+    <string name="SD_format">Format</string>
+    <string name="No_SdCard">No card</string>
+    <string name="record_mode">Record mode</string>
+    <string name="isNeed_record_vol">Mic</string>
+    <string name="record_vol">Voice volume </string>
+    <string name="record_Resolution">Resolution</string>
+    <string name="record_Frames">Frame</string>
+    <string name="record_Quality">Quality</string>
+    <string name="record_Bitrate">Bitrate</string>
+    <string name="record_time">Loop recording</string>
+    <string name="photo_Brightness">Brightness</string>
+    <string name="photo_Contrast">Contrast</string>
+    <string name="photo_Hue">Hue</string>
+    <string name="photo_Saturation">Saturation</string>
+    <string name="photo_Sharpness">Sharpness</string>
+    <string name="photo_frequency">Freq</string>
+    <string name="photo_mirror">Mirror</string>
+    <string name="VideoFormat">Video format</string>
+    <string name="device_time">Time Sync</string>
+    <string name="device_gsensor">G_Sensitivity</string>
+    <string name="device_check_update">Version update</string>
+    <string name="checking_update">Checking update</string>
+    <string name="update">Update</string>
+    <string name="is_update">New version,update now?</string>
+    <string name="update_now">Update now</string>
+    <string name="update_later">Not update</string>
+    <string name="lastest_vresion">It\'s the last version</string>
+    <string name="unable_wifi">Current wifi cannot connect to the network, switch it now?</string>
+    <string name="wifi_not_open">wifi not open</string>
+    <string name="device_reset">Restore factory settings</string>
+    <string name="alert_reset">Sure to restore factory setting, reboot now?</string>
+    <string name="alert_format_SD">Sure to format SD card?</string>
+    <string name="weibosdk_demo_toast_share_success">Sharing success</string>
+    <string name="weibosdk_demo_toast_share_failed">Sharing fail</string>
+    <string name="weibosdk_demo_toast_share_canceled">Sharing cancel</string>
+    <string name="errcode_success">Send success</string>
+    <string name="errcode_cancel">Send cancel</string>
+    <string name="errcode_deny">Send deny</string>
+    <string name="errcode_unknown">Send unknown</string>
+    <string name="no_wechat_find">"Install WeChat APP first"</string>
+    <string name="update_wechat">Update WeChat APP first</string>
+    <string name="permission_denied">Permission denied, please set permissions</string>
+    <string name="refresh">refresh</string>
+    <string-array name="times">
+        <item>1 min</item>
+        <item>3 min</item>
+        <item>5 min</item>
+    </string-array>
+    <string-array name="record_modes">
+        <item>Auto</item>
+        <item>Manual</item>
+    </string-array>
+    <string-array name="Gsensors">
+        <item>Low</item>
+        <item>Middle</item>
+        <item>High</item>
+    </string-array>
+    <string-array name="Quality">
+        <item>FHD</item>
+        <item>HD</item>
+        <item>VGA</item>
+    </string-array>
+    <string-array name="Frames">
+        <item>30fps</item>
+        <item>25fps</item>
+        <item>20fps</item>
+        <item>15fps</item>
+    </string-array>
+    <string-array name="Resolution">
+        <item>1080P</item>
+        <item>720P</item>
+    </string-array>
+    <string-array name="Bitrate">
+        <item>2Mbps</item>
+        <item>3Mbps</item>
+        <item>4Mbps</item>
+        <item>5Mbps</item>
+        <item>6Mbps</item>
+        <item>7Mbps</item>
+        <item>8Mbps</item>
+    </string-array>
+    <string-array name="mirror">
+        <item>Mirror Off</item>
+        <item>H Mirror</item>
+        <item>V Mirror</item>
+        <item>All Mirror</item>
+    </string-array>
+    <string-array name="frequency">
+        <item>50Hz</item>
+        <item>60Hz</item>
+    </string-array>
+    <string-array name="VideoFormat">
+        <item>PAL</item>
+        <item>NTSC</item>
+    </string-array>
+</resources>

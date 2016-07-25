@@ -82,31 +82,33 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        if(!isWifiConnectedToDVR()){
+        if (!isWifiConnectedToDVR()) {
             showConnectingDialog();
             return;
         }
         switch (v.getId()) {
             case R.id.device_reset:
-                new AlertDialog.Builder(this).setMessage(getString(R.string.alert_reset)).setNegativeButton(getString(R.string.cancel), null)
+                AlertDialog a1 = new AlertDialog.Builder(this).setMessage(getString(R.string.alert_reset)).setNegativeButton(getString(R.string.cancel), null)
                         .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 restore();
                             }
-                        }).create().show();
+                        }).show();
+                Tool.changeDialogText(a1);
                 break;
             case R.id.about:
                 getVersion();
                 break;
             case R.id.sdcard_format:
-                new AlertDialog.Builder(SettingDeviceActivity.this).setMessage(getString(R.string.alert_format_SD)).setNegativeButton(getString(R.string.cancel), null)
+                AlertDialog a2 = new AlertDialog.Builder(SettingDeviceActivity.this).setMessage(getString(R.string.alert_format_SD)).setNegativeButton(getString(R.string.cancel), null)
                         .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 formatSD();
                             }
-                        }).create().show();
+                        }).show();
+                Tool.changeDialogText(a2);
                 break;
         }
     }

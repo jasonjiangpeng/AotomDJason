@@ -1,20 +1,24 @@
 <resources>
     <string name="app_name">GKDVR</string>
     <string name="remote_file">远程文件</string>
-    <string name="photo">相册</string>
+    <string name="photo">本地相册</string>
     <string name="camera">摄像机</string>
     <string name="setting">设置</string>
     <string name="loading">正在加载</string>
     <string name="buffering">正在缓冲</string>
     <string name="notice">提示</string>
     <string name="notice_delete_file">"是否要删除以下文件?\n"</string>
+    <string name="file_exists">"文件已存在"</string>
     <string name="notice_exit">确定要退出程序吗?</string>
     <string name="no_device">设备未连接</string>
     <string name="connecting">现在连接</string>
+    <string name="wifi_connecting">正在连接</string>
+    <string name="wifi_connecting_fail">连接失败</string>
     <string name="connecting_device">设备未连接,是否连接设备?</string>
     <string name="Submiting">正在提交</string>
     <string name="changing">正在切换</string>
     <string name="photoing">正在拍照</string>
+    <string name="scaning">正在刷新</string>
     <string name="taking_photo_fail">拍照失败</string>
     <string name="taking_photo_success">拍照成功</string>
     <string name="lock_file_success">加锁成功</string>
@@ -22,6 +26,7 @@
     <string name="delete_file_success">删除成功</string>
     <string name="get_version_fail">获取版本信息失败</string>
     <string name="device_disconnection">设备断开连接</string>
+    <string name="device_list">设备列表</string>
     <string name="change_camera">切换</string>
     <string name="restore_fail">恢复出厂设置失败</string>
     <string name="load_video_fail">加载视频失败</string>
@@ -34,11 +39,12 @@
     <string name="set_record_fail">参数设置失败</string>
     <string name="set_time_fail">时间同步失败</string>
     <string name="get_record_state_fail">获取录像状态失败</string>
+    <string name="get_record_time_fail">获取录像时长失败</string>
     <string name="set_time_success">时间同步成功</string>
     <string name="recording_fail">录像失败</string>
-    <string name="recording_start">开始录像</string>
-    <string name="recording_end">录像完成</string>
-    <string name="net_fail">网络异常</string>
+    <string name="recording_start">开启录像</string>
+    <string name="recording_end">停止录像</string>
+    <string name="net_fail">网络异常,请检查网络</string>
     <string name="connect_not_ready">暂无连接</string>
     <string name="pls_stop_recording">请先停止录像</string>
     <string name="image_unit">张</string>
@@ -52,6 +58,8 @@
     <string name="share_sina_weibo">新浪微博</string>
     <string name="share_wechat">微信好友</string>
     <string name="share_qq">QQ好友</string>
+    <string name="share_qzone">QQ空间</string>
+    <string name="share_wechat_moment">微信朋友圈</string>
     <string name="delete_success">删除成功</string>
     <string name="delete_fail">删除失败</string>
     <string name="download_over">下载完成</string>
@@ -101,6 +109,7 @@
     <string name="update_later">暂不更新</string>
     <string name="lastest_vresion">已经是最新版本</string>
     <string name="unable_wifi">当前wifi不能连接网络,是否切换wifi</string>
+    <string name="wifi_not_open">wifi未打开</string>
     <string name="device_reset">恢复出厂设置</string>
     <string name="alert_reset">是否恢复出厂设置，重启生效</string>
     <string name="alert_format_SD">确定要格式化SD卡吗？</string>
@@ -114,6 +123,7 @@
     <string name="no_wechat_find">"请先安装微信应用"</string>
     <string name="update_wechat">请先更新微信应用</string>
     <string name="permission_denied">权限拒绝,请设置权限</string>
+    <string name="refresh">刷新</string>
     <string-array name="times">
         <item>1分钟</item>
         <item>3分钟</item>

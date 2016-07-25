@@ -402,7 +402,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                             mVideoRotationDegree = arg2;
                             Log.d(TAG, "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + arg2);
                             if (mRenderView != null)
-                            break;
+                                break;
                         case IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START:
                             Log.d(TAG, "MEDIA_INFO_AUDIO_RENDERING_START:");
                             break;
@@ -439,25 +439,26 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
                         if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
                             messageId = R.string.VideoView_error_text_invalid_progressive_playback;
-                        } else {
-                            messageId = R.string.VideoView_error_text_unknown;
-                        }
-
-                        new AlertDialog.Builder(getContext())
-                                .setMessage(messageId)
-                                .setPositiveButton(R.string.VideoView_error_button,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
+                            new AlertDialog.Builder(getContext())
+                                    .setMessage(messageId)
+                                    .setPositiveButton(R.string.VideoView_error_button,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
                                             /* If we get here, there is no onError listener, so
                                              * at least inform them that the video is over.
                                              */
-                                                if (mOnCompletionListener != null) {
-                                                    mOnCompletionListener.onCompletion(mMediaPlayer);
+                                                    if (mOnCompletionListener != null) {
+                                                        mOnCompletionListener.onCompletion(mMediaPlayer);
+                                                    }
                                                 }
-                                            }
-                                        })
-                                .setCancelable(false)
-                                .show();
+                                            })
+                                    .setCancelable(false)
+                                    .show();
+                        } else {
+//                            messageId = R.string.VideoView_error_text_unknown;
+                        }
+
+
                     }
                     return true;
                 }

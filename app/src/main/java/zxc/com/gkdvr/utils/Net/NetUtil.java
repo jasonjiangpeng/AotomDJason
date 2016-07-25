@@ -31,6 +31,22 @@ public class NetUtil {
         client.newCall(request).enqueue(callback);
     }
 
+    public static void get(String url, NetParamas params, NetCallBack callback,boolean del) {
+        StringBuilder builder = new StringBuilder(url.trim());
+        HashMap<String, String> param = params.getParams();
+        for (String key : param.keySet()) {
+            builder.append(key);
+            if (!key.equals(""))
+                builder.append("=");
+            builder.append(param.get(key)).append("&");
+        }
+        if(del)
+        builder.deleteCharAt(builder.length() - 1);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().get().url(builder.toString()).build();
+        client.newCall(request).enqueue(callback);
+    }
+
     public static void get(String url, NetParamas params, final NetCallBack callback, String msg, boolean delLast) {
         try {
             Tool.showProgressDialog(msg, false, MyApplication.getCurrentActivity());

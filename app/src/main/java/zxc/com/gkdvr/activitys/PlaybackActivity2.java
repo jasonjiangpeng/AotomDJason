@@ -6,12 +6,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.widget.media.AndroidMediaController;
@@ -30,6 +34,8 @@ public class PlaybackActivity2 extends BaseActivity implements IMediaPlayer.OnBu
     private RelativeLayout rootView;
     private LinearLayout progressDialog;
     private boolean isProgressShow = false;
+    private TextView mCurrentTime;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +44,11 @@ public class PlaybackActivity2 extends BaseActivity implements IMediaPlayer.OnBu
         setContentView(R.layout.activity_play_back2);
         filePath = getIntent().getExtras().getString("videopath");
         Tool.showProgressDialog(getString(R.string.loading), false, this);
-        init();
+        try {
+            init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void init() {
@@ -59,6 +69,8 @@ public class PlaybackActivity2 extends BaseActivity implements IMediaPlayer.OnBu
         });
         rootView.addView(vVideoControl);
         mMediaController = new AndroidMediaController(this, false);
+//        View mRoot = View.inflate(this,getResources().getIdentifier("media_controller","layout","android"), null);
+//        mCurrentTime = (TextView) mRoot.findViewById(getResources().getIdentifier("time_current","id","android"));
         mVideoView = (IjkVideoView) findViewById(R.id.video_view);
         mVideoView.setMediaController(mMediaController);
         mVideoView.setOnCompletionListener(new IMediaPlayer.OnCompletionListener() {
@@ -79,10 +91,36 @@ public class PlaybackActivity2 extends BaseActivity implements IMediaPlayer.OnBu
         // prefer mVideoPath
         if (filePath.startsWith("http://")) {
             mVideoView.setVideoPath(filePath);
+//            String [] s = filePath.split("/");
+//            if(s.length>0&&s[s.length-1].contains("R")){
+//                startTimer();
+//            }
         } else {
-            mVideoView.setVideoURI(Uri.fromFile(new File(filePath)));
+            File file = new File(filePath);
+            mVideoView.setVideoURI(Uri.fromFile(file));
+//            if(file.getName().contains("R")){
+//                startTimer();
+//            }
         }
         mVideoView.start();
+
+    }
+
+    private void startTimer() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int time = mVideoView.getCurrentPosition();
+                        MyLogger.i("time------------>" + time);
+                        mCurrentTime.setText("" + mVideoView.getCurrentPosition());
+                    }
+                });
+            }
+        }, 0, 1000);
     }
 
 

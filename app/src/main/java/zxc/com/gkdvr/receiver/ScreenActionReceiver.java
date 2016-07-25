@@ -34,10 +34,10 @@ public class ScreenActionReceiver extends BroadcastReceiver {
                     disconnectWifi(context);
             }
         } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
-            if(Tool.isAppOnForeground(context)){
-                isReloadRtsp=true;
-            }else{
-                isReloadRtsp=false;
+            if (Tool.isAppOnForeground(context)) {
+                isReloadRtsp = true;
+            } else {
+                isReloadRtsp = false;
             }
             cancelDisconn();
         } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
@@ -55,7 +55,7 @@ public class ScreenActionReceiver extends BroadcastReceiver {
     }
 
     private void disconnectWifi(final Context context) {
-        if(!isWifiConnectedToDVR(context)){
+        if (!isWifiConnectedToDVR(context)) {
             return;
         }
         isTimerScheduled = true;
@@ -78,7 +78,7 @@ public class ScreenActionReceiver extends BroadcastReceiver {
         }
         String device_ssid = wifiManager.getConnectionInfo().getSSID().toString().replace("\"", "");
         if (gl_wifiInfo.isConnected()) {
-            if (device_ssid.contains("DVR_")) {
+            if (device_ssid.contains("DVR_") || device_ssid.startsWith("UBI")) {
                 NetworkConnectChangedReceiver.wifiName = device_ssid;
                 return true;
             }

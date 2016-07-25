@@ -5,20 +5,13 @@ import android.util.Log;
 import java.util.Hashtable;
 
 public class MyLogger {
-    /**
-     * 是否输出log
-     */
-    private final static boolean logFlag = true;
-
-    /**
-     * 应用名标签
-     */
+    private final static boolean logFlag = false;
     public final static String tag = "[" + Constance.APP_NAME + "]";
-    private  static  String userName = "dk";
+    private static String userName = "dk";
+
     public MyLogger(String userName) {
         this.userName = userName;
     }
-
 
     /**
      * 获取方法名

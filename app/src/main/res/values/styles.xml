@@ -15,8 +15,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Theme.Wifi_list" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
     <style name="Theme.Start" parent="BaseAppTheme">
-        <item name="android:windowBackground">@mipmap/launch_screen</item>
+        <item name="android:windowBackground">@mipmap/launch_zh</item>
         <item name="android:windowNoTitle">true</item>
     </style>
 
@@ -37,6 +42,12 @@
         <item name="android:paddingRight">10dp</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="Translucent_NoTitle" parent="android:style/Theme.Dialog">
+        <item name="android:background">#00000000</item> <!-- 设置自定义布局的背景透明 -->
+        <item name="android:windowBackground">@android:color/transparent
+        </item>  <!-- 设置window背景透明，也就是去边框 -->
     </style>
 
 </resources>

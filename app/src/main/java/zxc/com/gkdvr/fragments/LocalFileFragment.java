@@ -32,6 +32,8 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.tencent.connect.share.QQShare;
+import com.tencent.connect.share.QzonePublish;
+import com.tencent.connect.share.QzoneShare;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
@@ -44,6 +46,7 @@ import com.tencent.tauth.UiError;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -65,6 +68,7 @@ import zxc.com.gkdvr.utils.MyLogger;
 import zxc.com.gkdvr.utils.NativeImageLoader;
 import zxc.com.gkdvr.utils.Tool;
 import zxc.com.gkdvr.utils.UIUtil;
+import zxc.com.gkdvr.utils.WifiAdmin;
 
 /**
  * Created by dk on 2016/6/2.
@@ -80,7 +84,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
     private LinkedHashMap<String, List<ListFile>> fileMap;
     private AlertDialog alertDialog;
     private DisplayMetrics dm;
-    private List<File> allFiles = new ArrayList<>();
+    private ArrayList<File> allFiles = new ArrayList<>();
     private IWXAPI iwxapi;
     private Tencent mTencent;
     private ShareDialog shareDialog;
@@ -162,6 +166,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                     }
                 }
             }
+            MyLogger.i(fileListFiles.toString());
             Collections.sort(fileListFiles, new Comparator<File>() {
                 @Override
                 public int compare(File lhs, File rhs) {
@@ -171,10 +176,16 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                         return 1;
                     } else if (ll < lr) {
                         return -1;
+                    } else {
+                        if (lhs.getName().contains("L") && rhs.getName().contains("R")) return -1;
+                        if (lhs.getName().contains("R") && rhs.getName().contains("L")) return 1;
+                        if (lhs.getName().contains("F") && rhs.getName().contains("B")) return -1;
+                        if (lhs.getName().contains("B") && rhs.getName().contains("F")) return 1;
                     }
                     return 0;
                 }
             });
+            MyLogger.i(fileListFiles.toString());
             allFiles.addAll(fileListFiles);
             for (int i = 0; i < fileListFiles.size(); i++) {
                 File f = fileListFiles.get(i);
@@ -201,7 +212,8 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                 Intent intent;
                 if (type == 1) {
                     intent = new Intent(getActivity(), PhotoActivity.class);
-                    intent.putExtra("path", filePath);
+                    intent.putExtra("file", currentFile);
+                    intent.putExtra("files",allFiles);
                 } else {
                     intent = new Intent(getActivity(), PlaybackActivity2.class);
                     MyLogger.i(filePath);
@@ -219,13 +231,17 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                     showConnectingDialog();
                     return;
                 }
+                if (!Tool.isNetconn(getActivity())) {
+                    Tool.showToast(getString(R.string.net_fail));
+                    return;
+                }
                 shareDialog = new ShareDialog(getActivity());
                 break;
         }
     }
 
     private void showConnectingDialog() {
-        new android.support.v7.app.AlertDialog.Builder(getActivity()).setTitle(getString(R.string.notice))
+        AlertDialog dialog = new android.support.v7.app.AlertDialog.Builder(getActivity()).setTitle(getString(R.string.notice))
                 .setMessage(getString(R.string.unable_wifi))
                 .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                     @Override
@@ -235,6 +251,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                         startActivity(intent);
                     }
                 }).show();
+        Tool.changeDialogText(dialog);
     }
 
 //    private PlatformActionListener platformActionListener = new PlatformActionListener() {
@@ -256,11 +273,11 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
 
 
     private void deleteFile(final File file) {
-        new AlertDialog.Builder(getActivity())
-                .setTitle("删除警告")
-                .setMessage("是否要删除以下文件?\n" + file.getName())
-                .setNegativeButton("取消", null)
-                .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.notice))
+                .setMessage(getString(R.string.notice_delete_file) + file.getName())
+                .setNegativeButton(getString(R.string.cancel), null)
+                .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         new AsyncTask<Void, Void, Boolean>() {
@@ -287,6 +304,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                     }
                 })
                 .show();
+        Tool.changeDialogText(dialog);
     }
 
     private File currentFile;
@@ -339,7 +357,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
             final List<ListFile> val = map.get(key);
             int count = val.size();
             tvDate.setText(key);
-            tvCount.setText(count + (suffix.equals(".mkv") ? "个" : "张"));
+            tvCount.setText(count + (suffix.equals(".mkv") ? getString(R.string.video_unit) : getString(R.string.image_unit)));
             for (int i = 0; i < val.size(); i++) {
                 final File file = val.get(i).getFile();
                 if (file.length() == 0) {
@@ -353,10 +371,21 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                 LinearLayout linearLayout = new LinearLayout(getActivity());
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 TextView textView = new TextView(getActivity());
-                StringBuffer filename = new StringBuffer(file.getName().substring(8, 14));
+                String name = file.getName();
+                StringBuffer filename = new StringBuffer(name.substring(8, 14));
                 filename.insert(2, ":");
                 filename.insert(5, ":");
-                textView.setText(filename.toString());
+                if (name.contains("_L")) {
+                    textView.setText("L  " + filename.toString());
+                } else if (name.contains("_F")) {
+                    textView.setText("F  " + filename.toString());
+                } else if (name.contains("_R")) {
+                    textView.setText("R  " + filename.toString());
+                } else if (name.contains("_B")) {
+                    textView.setText("B  " + filename.toString());
+                } else {
+                    textView.setText(filename.toString());
+                }
                 textView.setWidth(maxWidth);
                 textView.setGravity(Gravity.CENTER);
                 LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(maxWidth, maxHeight);
@@ -429,16 +458,18 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
     class ShareDialog implements View.OnClickListener {
         private AlertDialog dialog;
 
-
         public ShareDialog(Context context) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             LinearLayout linearLayout = (LinearLayout) View.inflate(context, R.layout.share_dialog1, null);
             linearLayout.findViewById(R.id.sina).setOnClickListener(this);
             linearLayout.findViewById(R.id.wechat).setOnClickListener(this);
             linearLayout.findViewById(R.id.qq).setOnClickListener(this);
+            linearLayout.findViewById(R.id.q_zone).setOnClickListener(this);
+            linearLayout.findViewById(R.id.wechat_moments).setOnClickListener(this);
             builder.setNegativeButton(getString(R.string.cancel), null);
             builder.setView(linearLayout);
             dialog = builder.show();
+            Tool.changeDialogText(dialog);
         }
 
         /**
@@ -458,13 +489,40 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                     MainActivity.mWeiboShareAPI.registerApp();
                     sendMultiMessage();
                     break;
-                case R.id.qq:
+                case R.id.wechat_moments:
+                    shareToWechat(SendMessageToWX.Req.WXSceneTimeline);
+                    break;
+                case R.id.q_zone:
                     mTencent = Tencent.createInstance(QQ_APP_ID, getActivity());
                     Bundle params = new Bundle();
-                    params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, filePath);
-                    params.putString(QQShare.SHARE_TO_QQ_APP_NAME, getString(R.string.app_name));
-                    params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);
-                    mTencent.shareToQQ(getActivity(), params, new IUiListener() {
+                    params.putInt(QzoneShare.SHARE_TO_QZONE_KEY_TYPE, QzonePublish.PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD);
+                    ArrayList<String> arrays = new ArrayList<>();
+                    arrays.add(filePath);
+                    params.putStringArrayList(QzoneShare.SHARE_TO_QQ_IMAGE_URL, arrays);
+                    mTencent.publishToQzone(getActivity(), params, new IUiListener() {
+                        @Override
+                        public void onComplete(Object o) {
+                            Tool.showToast(getString(R.string.weibosdk_demo_toast_share_success));
+                        }
+
+                        @Override
+                        public void onError(UiError uiError) {
+                            Tool.showToast(uiError.errorMessage);
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            Tool.showToast(getString(R.string.weibosdk_demo_toast_share_canceled));
+                        }
+                    });
+                    break;
+                case R.id.qq:
+                    mTencent = Tencent.createInstance(QQ_APP_ID, getActivity());
+                    Bundle params1 = new Bundle();
+                    params1.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, filePath);
+                    params1.putString(QQShare.SHARE_TO_QQ_APP_NAME, getString(R.string.app_name));
+                    params1.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);
+                    mTencent.shareToQQ(getActivity(), params1, new IUiListener() {
                         @Override
                         public void onComplete(Object o) {
                             Tool.showToast(getString(R.string.weibosdk_demo_toast_share_success));
@@ -482,30 +540,35 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                     });
                     break;
                 case R.id.wechat:
-                    iwxapi = WXAPIFactory.createWXAPI(getActivity(), WECHAT_APP_KEY, true);
-                    iwxapi.registerApp(WECHAT_APP_KEY);
-                    if (!iwxapi.isWXAppInstalled()) {
-                        Tool.showToast(getString(R.string.no_wechat_find));
-                        return;
-                    }
-                    if (!iwxapi.isWXAppSupportAPI()) {
-                        Tool.showToast(getString(R.string.update_wechat));
-                        return;
-                    }
-                    Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-                    WXImageObject wxImageObject = new WXImageObject(bitmap);
-                    WXMediaMessage message = new WXMediaMessage();
-                    message.mediaObject = wxImageObject;
-                    Bitmap thumb = Bitmap.createScaledBitmap(bitmap, 64, 64, true);
-                    bitmap.recycle();
-                    message.thumbData = Bitmap2Bytes(thumb);
-                    SendMessageToWX.Req req = new SendMessageToWX.Req();
-                    req.transaction = buildTransaction("img");
-                    req.message = message;
-                    req.scene = SendMessageToWX.Req.WXSceneSession;
-                    iwxapi.sendReq(req);
+                    shareToWechat(SendMessageToWX.Req.WXSceneSession);
                     break;
             }
+        }
+
+        private void shareToWechat(int type) {
+            iwxapi = WXAPIFactory.createWXAPI(getActivity(), WECHAT_APP_KEY, true);
+            iwxapi.registerApp(WECHAT_APP_KEY);
+            if (!iwxapi.isWXAppInstalled()) {
+                Tool.showToast(getString(R.string.no_wechat_find));
+                return;
+            }
+            if (!iwxapi.isWXAppSupportAPI()) {
+                Tool.showToast(getString(R.string.update_wechat));
+                return;
+            }
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+            WXImageObject wxImageObject = new WXImageObject(bitmap);
+            WXMediaMessage message = new WXMediaMessage();
+            message.mediaObject = wxImageObject;
+            Bitmap thumb = Bitmap.createScaledBitmap(bitmap, 64, 64, true);
+            bitmap.recycle();
+            message.thumbData = Bitmap2Bytes(thumb);
+            SendMessageToWX.Req req = new SendMessageToWX.Req();
+            req.transaction = buildTransaction("img");
+            req.message = message;
+            req.scene = type;
+            iwxapi.sendReq(req);
+            iwxapi.unregisterApp();
         }
     }
 

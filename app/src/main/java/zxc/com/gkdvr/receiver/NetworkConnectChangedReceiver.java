@@ -25,6 +25,7 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+        MyLogger.i("onReceive------------------->" + action);
         if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
             Parcelable parcelableExtra = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             if (null != parcelableExtra) {
@@ -32,18 +33,20 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
                 NetworkInfo.State wifiState = networkInfo.getState();
                 if (wifiState == NetworkInfo.State.CONNECTED) {
                     String name = networkInfo.getExtraInfo();
-                    if ((name.startsWith("\"DVR")||name.startsWith("\"UBI")) && TextUtils.isEmpty(wifiName)) {
+                    MyLogger.i("CONNECTED--------->" + name);
+                    if ((name.startsWith("\"DVR") || name.startsWith("\"UBI")) && TextUtils.isEmpty(wifiName)) {
                         wifiName = name;
-                        MyLogger.i("wifiName--------->"+wifiName);
-                        context.sendBroadcast(new Intent(Constance.ACTION_NET_CONN));
+                        MyLogger.i("wifiName--------->" + wifiName);
+                        context.sendOrderedBroadcast(new Intent(Constance.ACTION_NET_CONN), null);
 //                        if (MainActivity.connectionDialog.isShowing())
 //                            MainActivity.connectionDialog.dismiss();
                     }
                 } else if (wifiState == NetworkInfo.State.DISCONNECTED) {
-                    if (wifiName.startsWith("DVR")||wifiName.startsWith("UBI")) {
+                    MyLogger.i("DISCONNECTED--------->" + wifiName);
+                    if (wifiName.startsWith("DVR") || wifiName.startsWith("UBI")||(wifiName.startsWith("\"DVR") || wifiName.startsWith("\"UBI"))) {
                         netChange(wifiName + " DISCONNECTED");
-                        MyLogger.i("netChange--------->"+wifiName);
-                        wifiName="";
+                        MyLogger.i("netChange--------->" + wifiName);
+                        wifiName = "";
                     }
                 }
             }

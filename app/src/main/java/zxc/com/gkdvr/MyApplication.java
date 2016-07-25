@@ -22,10 +22,15 @@ public class MyApplication extends Application {
     }
 
     public static void exit() {
-        for (int i = 0; i < activities.size(); i++) {
-            activities.pop().finish();
+        try {
+            for (int i = 0; i < activities.size(); i++) {
+                activities.pop().finish();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.exit(0);
         }
-        System.exit(0);
     }
 
     public static Activity getCurrentActivity() {

@@ -35,9 +35,9 @@ public class WifiAdmin {
 
     public WifiAdmin(Context context) {
         this.ctx = context;
-        this.mWifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        this.mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         this.mWifiInfo = this.mWifiManager.getConnectionInfo();
-        this.mConnectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        this.mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public String getNetworkType() {
@@ -49,14 +49,14 @@ public class WifiAdmin {
     }
 
     public void openWifi() {
-        if(!this.mWifiManager.isWifiEnabled()) {
+        if (!this.mWifiManager.isWifiEnabled()) {
             this.mWifiManager.setWifiEnabled(true);
         }
 
     }
 
     public void closeWifi() {
-        if(this.mWifiManager.isWifiEnabled()) {
+        if (this.mWifiManager.isWifiEnabled()) {
             this.mWifiManager.setWifiEnabled(false);
         }
 
@@ -71,7 +71,7 @@ public class WifiAdmin {
     }
 
     public void releaseWifiLock() {
-        if(this.mWifiLock.isHeld()) {
+        if (this.mWifiLock.isHeld()) {
             this.mWifiLock.acquire();
         }
 
@@ -86,8 +86,8 @@ public class WifiAdmin {
     }
 
     public void connectConfiguration(int index) {
-        if(index <= this.mWifiConfiguration.size()) {
-            this.mWifiManager.enableNetwork(((WifiConfiguration)this.mWifiConfiguration.get(index)).networkId, true);
+        if (index <= this.mWifiConfiguration.size()) {
+            this.mWifiManager.enableNetwork(((WifiConfiguration) this.mWifiConfiguration.get(index)).networkId, true);
         }
     }
 
@@ -104,9 +104,9 @@ public class WifiAdmin {
     public StringBuilder lookUpScan() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for(int i = 0; i < this.mWifiList.size(); ++i) {
+        for (int i = 0; i < this.mWifiList.size(); ++i) {
             stringBuilder.append("Index_" + (new Integer(i + 1)).toString() + ":");
-            stringBuilder.append(((ScanResult)this.mWifiList.get(i)).toString());
+            stringBuilder.append(((ScanResult) this.mWifiList.get(i)).toString());
             stringBuilder.append("/n");
         }
 
@@ -114,27 +114,27 @@ public class WifiAdmin {
     }
 
     public String getSSID() {
-        return this.mWifiInfo == null?"":this.mWifiInfo.getSSID();
+        return this.mWifiInfo == null ? "" : this.mWifiInfo.getSSID();
     }
 
     public String getMacAddress() {
-        return this.mWifiInfo == null?"NULL":this.mWifiInfo.getMacAddress();
+        return this.mWifiInfo == null ? "NULL" : this.mWifiInfo.getMacAddress();
     }
 
     public String getBSSID() {
-        return this.mWifiInfo == null?"NULL":this.mWifiInfo.getBSSID();
+        return this.mWifiInfo == null ? "NULL" : this.mWifiInfo.getBSSID();
     }
 
     public int getIPAddress() {
-        return this.mWifiInfo == null?0:this.mWifiInfo.getIpAddress();
+        return this.mWifiInfo == null ? 0 : this.mWifiInfo.getIpAddress();
     }
 
     public int getNetworkId() {
-        return this.mWifiInfo == null?0:this.mWifiInfo.getNetworkId();
+        return this.mWifiInfo == null ? 0 : this.mWifiInfo.getNetworkId();
     }
 
     public String getWifiInfo() {
-        return this.mWifiInfo == null?"NULL":this.mWifiInfo.toString();
+        return this.mWifiInfo == null ? "NULL" : this.mWifiInfo.toString();
     }
 
     public int getNetID() {
@@ -148,14 +148,14 @@ public class WifiAdmin {
     }
 
     public boolean isEqualSSID(String StrSrcSSID, String StrTarSSID) {
-        return StrSrcSSID != null && StrTarSSID != null?StrSrcSSID.replace("\"", "").equals(StrTarSSID.replace("\"", "")):false;
+        return StrSrcSSID != null && StrTarSSID != null ? StrSrcSSID.replace("\"", "").equals(StrTarSSID.replace("\"", "")) : false;
     }
 
     public boolean isConnected(String tarSSID) {
         NetworkInfo mWifi = this.mConnectivityManager.getNetworkInfo(1);
         WifiInfo currentWifi = this.mWifiManager.getConnectionInfo();
         String curSSID = currentWifi.getSSID();
-        return mWifi.isConnected()&& curSSID != null && this.isEqualSSID(curSSID, tarSSID) ;
+        return mWifi.isConnected() && curSSID != null && this.isEqualSSID(curSSID, tarSSID);
     }
 
     public boolean addNetworkNoDisableOther(WifiConfiguration wcg) {
@@ -167,7 +167,7 @@ public class WifiAdmin {
     }
 
     public int getEncrptionType(String auth) {
-        return !auth.contains("Enterprise") && !auth.contains("EAP")?(auth.contains("WPA2")?3:(auth.contains("WPA")?2:(auth.contains("WEP")?1:(auth.equals("")?0:(auth.equals("[ESS]")?0:5))))):4;
+        return !auth.contains("Enterprise") && !auth.contains("EAP") ? (auth.contains("WPA2") ? 3 : (auth.contains("WPA") ? 2 : (auth.contains("WEP") ? 1 : (auth.equals("") ? 0 : (auth.equals("[ESS]") ? 0 : 5))))) : 4;
     }
 
     public boolean addNetwork(WifiConfiguration wcg) {
@@ -182,15 +182,15 @@ public class WifiAdmin {
 
     public boolean enableNetwork(String SSID) {
         boolean state = false;
-        WifiManager wm = (WifiManager)this.ctx.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wm = (WifiManager) this.ctx.getSystemService(Context.WIFI_SERVICE);
         this.mWifiManager.disconnect();
-        if(wm.setWifiEnabled(true)) {
+        if (wm.setWifiEnabled(true)) {
             List networks = wm.getConfiguredNetworks();
             Iterator iterator = networks.iterator();
 
-            while(iterator.hasNext()) {
-                WifiConfiguration wifiConfig = (WifiConfiguration)iterator.next();
-                if(this.isEqualSSID(wifiConfig.SSID, SSID)) {
+            while (iterator.hasNext()) {
+                WifiConfiguration wifiConfig = (WifiConfiguration) iterator.next();
+                if (this.isEqualSSID(wifiConfig.SSID, SSID)) {
                     state = wm.enableNetwork(wifiConfig.networkId, true);
                     break;
                 }
@@ -204,13 +204,13 @@ public class WifiAdmin {
 
     public void enableAllnetwork() {
         try {
-            WifiManager e = (WifiManager)this.ctx.getSystemService(Context.WIFI_SERVICE);
-            if(e.setWifiEnabled(true)) {
+            WifiManager e = (WifiManager) this.ctx.getSystemService(Context.WIFI_SERVICE);
+            if (e.setWifiEnabled(true)) {
                 List networks = e.getConfiguredNetworks();
                 Iterator iterator = networks.iterator();
 
-                while(iterator.hasNext()) {
-                    WifiConfiguration wifiConfig = (WifiConfiguration)iterator.next();
+                while (iterator.hasNext()) {
+                    WifiConfiguration wifiConfig = (WifiConfiguration) iterator.next();
                     e.enableNetwork(wifiConfig.networkId, false);
                 }
             }
@@ -222,14 +222,14 @@ public class WifiAdmin {
 
     public boolean disableNework(String SSID) {
         boolean state = false;
-        WifiManager wm = (WifiManager)this.ctx.getSystemService(Context.WIFI_SERVICE);
-        if(wm.setWifiEnabled(true)) {
+        WifiManager wm = (WifiManager) this.ctx.getSystemService(Context.WIFI_SERVICE);
+        if (wm.setWifiEnabled(true)) {
             List networks = wm.getConfiguredNetworks();
             Iterator iterator = networks.iterator();
 
-            while(iterator.hasNext()) {
-                WifiConfiguration wifiConfig = (WifiConfiguration)iterator.next();
-                if(this.isEqualSSID(wifiConfig.SSID, SSID)) {
+            while (iterator.hasNext()) {
+                WifiConfiguration wifiConfig = (WifiConfiguration) iterator.next();
+                if (this.isEqualSSID(wifiConfig.SSID, SSID)) {
                     state = wm.disableNetwork(wifiConfig.networkId);
                     wm.saveConfiguration();
                 } else {
@@ -245,14 +245,14 @@ public class WifiAdmin {
 
     boolean disableOtherNework(String ssid) {
         boolean state = false;
-        WifiManager wm = (WifiManager)this.ctx.getSystemService(Context.WIFI_SERVICE);
-        if(wm.setWifiEnabled(true)) {
+        WifiManager wm = (WifiManager) this.ctx.getSystemService(Context.WIFI_SERVICE);
+        if (wm.setWifiEnabled(true)) {
             List networks = wm.getConfiguredNetworks();
             Iterator iterator = networks.iterator();
 
-            while(iterator.hasNext()) {
-                WifiConfiguration wifiConfig = (WifiConfiguration)iterator.next();
-                if(this.isEqualSSID(wifiConfig.SSID, ssid)) {
+            while (iterator.hasNext()) {
+                WifiConfiguration wifiConfig = (WifiConfiguration) iterator.next();
+                if (this.isEqualSSID(wifiConfig.SSID, ssid)) {
                     state = wm.enableNetwork(wifiConfig.networkId, true);
                     wm.saveConfiguration();
                 } else {
@@ -280,18 +280,18 @@ public class WifiAdmin {
         config.allowedKeyManagement.clear();
         config.allowedPairwiseCiphers.clear();
         config.allowedProtocols.clear();
-        if(Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             config.SSID = SSID.replace("\"", "");
         } else {
             config.SSID = "\"" + SSID.replace("\"", "") + "\"";
         }
 
         WifiConfiguration tempConfig = this.IsExsits(SSID);
-        if(tempConfig != null) {
+        if (tempConfig != null) {
             this.mWifiManager.removeNetwork(tempConfig.networkId);
         }
 
-        switch(Type) {
+        switch (Type) {
             case 0:
                 config.allowedKeyManagement.set(0);
                 config.wepTxKeyIndex = 0;
@@ -306,7 +306,7 @@ public class WifiAdmin {
                 config.allowedPairwiseCiphers.set(1);
                 config.allowedGroupCiphers.set(0);
                 config.allowedGroupCiphers.set(1);
-                if(getHexKey(Password)) {
+                if (getHexKey(Password)) {
                     config.wepKeys[0] = Password;
                 } else {
                     config.wepKeys[0] = "\"" + Password + "\"";
@@ -341,16 +341,16 @@ public class WifiAdmin {
     }
 
     private static boolean getHexKey(String s) {
-        if(s == null) {
+        if (s == null) {
             return false;
         } else {
             int len = s.length();
-            if(len != 10 && len != 26 && len != 58) {
+            if (len != 10 && len != 26 && len != 58) {
                 return false;
             } else {
-                for(int i = 0; i < len; ++i) {
+                for (int i = 0; i < len; ++i) {
                     char c = s.charAt(i);
-                    if((c < 48 || c > 57) && (c < 97 || c > 102) && (c < 65 || c > 70)) {
+                    if ((c < 48 || c > 57) && (c < 97 || c > 102) && (c < 65 || c > 70)) {
                         return false;
                     }
                 }
@@ -362,11 +362,11 @@ public class WifiAdmin {
 
     public WifiConfiguration IsExsits(String SSID) {
         List existingConfigs = this.mWifiManager.getConfiguredNetworks();
-        if(existingConfigs != null) {
+        if (existingConfigs != null) {
             Iterator var4 = existingConfigs.iterator();
-            while(var4.hasNext()) {
-                WifiConfiguration existingConfig = (WifiConfiguration)var4.next();
-                if(this.isEqualSSID(existingConfig.SSID, SSID)) {
+            while (var4.hasNext()) {
+                WifiConfiguration existingConfig = (WifiConfiguration) var4.next();
+                if (this.isEqualSSID(existingConfig.SSID, SSID)) {
                     return existingConfig;
                 }
             }
@@ -377,11 +377,11 @@ public class WifiAdmin {
 
     public int GetNetWorkID(String SSID) {
         List existingConfigs = this.mWifiManager.getConfiguredNetworks();
-        if(existingConfigs != null) {
+        if (existingConfigs != null) {
             Iterator var4 = existingConfigs.iterator();
-            while(var4.hasNext()) {
-                WifiConfiguration existingConfig = (WifiConfiguration)var4.next();
-                if(this.isEqualSSID(existingConfig.SSID, SSID)) {
+            while (var4.hasNext()) {
+                WifiConfiguration existingConfig = (WifiConfiguration) var4.next();
+                if (this.isEqualSSID(existingConfig.SSID, SSID)) {
                     return existingConfig.networkId;
                 }
             }
@@ -393,15 +393,15 @@ public class WifiAdmin {
     public boolean UpgradeNetworkPriority(String SSID) {
         boolean state = false;
         List list = this.mWifiManager.getConfiguredNetworks();
-        if(list != null && list.size() > 0) {
+        if (list != null && list.size() > 0) {
             Iterator var5 = list.iterator();
 
-            while(var5.hasNext()) {
-                WifiConfiguration CurrConfig = (WifiConfiguration)var5.next();
-                if(CurrConfig.SSID != null && CurrConfig.SSID.equals(convertToQuotedString(SSID))) {
+            while (var5.hasNext()) {
+                WifiConfiguration CurrConfig = (WifiConfiguration) var5.next();
+                if (CurrConfig.SSID != null && CurrConfig.SSID.equals(convertToQuotedString(SSID))) {
                     Log.d("robert", "SSID:" + CurrConfig.SSID + "Priority:" + CurrConfig.priority);
                     int newPri = this.getMaxPriority(SSID);
-                    if(newPri >= 99999999) {
+                    if (newPri >= 99999999) {
                         newPri = this.shiftPriorityAndSave();
                     }
 
@@ -420,19 +420,19 @@ public class WifiAdmin {
     public boolean DowngradeNetworkPriority(String SSID) {
         boolean state = false;
         List list = this.mWifiManager.getConfiguredNetworks();
-        if(list != null && list.size() > 0) {
+        if (list != null && list.size() > 0) {
             Iterator var5 = list.iterator();
 
-            while(var5.hasNext()) {
-                WifiConfiguration CurrConfig = (WifiConfiguration)var5.next();
-                if(CurrConfig.SSID != null && CurrConfig.SSID.equals(convertToQuotedString(SSID))) {
+            while (var5.hasNext()) {
+                WifiConfiguration CurrConfig = (WifiConfiguration) var5.next();
+                if (CurrConfig.SSID != null && CurrConfig.SSID.equals(convertToQuotedString(SSID))) {
                     int newPri = this.getMaxPriority(SSID);
-                    if(newPri >= 99999999) {
+                    if (newPri >= 99999999) {
                         newPri = this.shiftPriorityAndSave();
                     }
 
                     CurrConfig.priority = newPri - 3;
-                    if(CurrConfig.priority < 0) {
+                    if (CurrConfig.priority < 0) {
                         CurrConfig.priority = 0;
                     }
 
@@ -452,15 +452,15 @@ public class WifiAdmin {
         int MaxIndex = 0;
         int i = 0;
 
-        for(Iterator var6 = configurations.iterator(); var6.hasNext(); ++i) {
-            WifiConfiguration config = (WifiConfiguration)var6.next();
-            if(config.priority > pri) {
+        for (Iterator var6 = configurations.iterator(); var6.hasNext(); ++i) {
+            WifiConfiguration config = (WifiConfiguration) var6.next();
+            if (config.priority > pri) {
                 pri = config.priority;
                 MaxIndex = i;
             }
         }
 
-        return (WifiConfiguration)configurations.get(MaxIndex);
+        return (WifiConfiguration) configurations.get(MaxIndex);
     }
 
     private int getMaxPriority(String SSID) {
@@ -470,19 +470,19 @@ public class WifiAdmin {
         int OurIndex = -1;
         int i = 0;
 
-        for(Iterator var8 = configurations.iterator(); var8.hasNext(); ++i) {
-            WifiConfiguration config = (WifiConfiguration)var8.next();
-            if(this.isEqualSSID(config.SSID, SSID)) {
+        for (Iterator var8 = configurations.iterator(); var8.hasNext(); ++i) {
+            WifiConfiguration config = (WifiConfiguration) var8.next();
+            if (this.isEqualSSID(config.SSID, SSID)) {
                 OurIndex = i;
-            } else if(config.priority > pri) {
+            } else if (config.priority > pri) {
                 pri = config.priority;
                 MaxIndex = i;
             }
         }
 
-        Log.d("robert", "SSID:" + ((WifiConfiguration)configurations.get(MaxIndex)).SSID + "Max Priority:" + ((WifiConfiguration)configurations.get(MaxIndex)).priority);
-        if(OurIndex >= 0) {
-            Log.d("robert", "SSID:" + ((WifiConfiguration)configurations.get(OurIndex)).SSID + "Priority:" + ((WifiConfiguration)configurations.get(OurIndex)).priority);
+        Log.d("robert", "SSID:" + ((WifiConfiguration) configurations.get(MaxIndex)).SSID + "Max Priority:" + ((WifiConfiguration) configurations.get(MaxIndex)).priority);
+        if (OurIndex >= 0) {
+            Log.d("robert", "SSID:" + ((WifiConfiguration) configurations.get(OurIndex)).SSID + "Priority:" + ((WifiConfiguration) configurations.get(OurIndex)).priority);
         }
 
         return pri;
@@ -492,7 +492,7 @@ public class WifiAdmin {
         Collections.sort(configurations, new Comparator() {
             @Override
             public int compare(Object lhs, Object rhs) {
-                return ((WifiConfiguration)lhs).priority - ((WifiConfiguration)rhs).priority;
+                return ((WifiConfiguration) lhs).priority - ((WifiConfiguration) rhs).priority;
             }
 
         });
@@ -503,8 +503,8 @@ public class WifiAdmin {
         this.sortByPriority(configurations);
         int size = configurations.size();
 
-        for(int i = 0; i < size; ++i) {
-            WifiConfiguration config = (WifiConfiguration)configurations.get(i);
+        for (int i = 0; i < size; ++i) {
+            WifiConfiguration config = (WifiConfiguration) configurations.get(i);
             config.priority = i;
             this.mWifiManager.updateNetwork(config);
         }
@@ -514,11 +514,11 @@ public class WifiAdmin {
     }
 
     public static String convertToQuotedString(String string) {
-        if(TextUtils.isEmpty(string)) {
+        if (TextUtils.isEmpty(string)) {
             return "";
         } else {
             int lastPos = string.length() - 1;
-            return lastPos > 0 && string.charAt(0) == 34 && string.charAt(lastPos) == 34?string:"\"" + string + "\"";
+            return lastPos > 0 && string.charAt(0) == 34 && string.charAt(lastPos) == 34 ? string : "\"" + string + "\"";
         }
     }
 

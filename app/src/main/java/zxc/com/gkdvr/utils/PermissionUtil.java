@@ -23,32 +23,34 @@ public class PermissionUtil {
             int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(permissions);
             if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
         return true;
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    public void askforPermission(String permission) {
+        MyApplication.getCurrentActivity().requestPermissions(new String[]{permission},
+                REQUEST_CODE_ASK_PERMISSIONS);
+    }
+
 
     @TargetApi(Build.VERSION_CODES.M)
-    public void askforPermission(final String permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(permissions);
-            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-                if (!MyApplication.getCurrentActivity().shouldShowRequestPermissionRationale(permissions)) {
-                    showMessageOKCancel(permissions,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    MyApplication.getCurrentActivity().requestPermissions(new String[]{permissions},
-                                            REQUEST_CODE_ASK_PERMISSIONS);
-                                }
-                            });
-                    return;
-                }
-                MyApplication.getCurrentActivity().requestPermissions(new String[]{Manifest.permission.WRITE_CONTACTS},
-                        REQUEST_CODE_ASK_PERMISSIONS);
+    public void askforStoragePermission() {
+        int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+            if (!MyApplication.getCurrentActivity().shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                showMessageOKCancel(Manifest.permission_group.STORAGE,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MyApplication.getCurrentActivity().requestPermissions(new String[]
+                                                {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                                        REQUEST_CODE_ASK_PERMISSIONS);
+                            }
+                        });
                 return;
             }
         }

@@ -25,7 +25,7 @@ import zxc.com.gkdvr.utils.Tool;
 /**
  * Created by dk on 2016/6/8.
  */
-public class VideoPlayActivity extends BaseActivity implements View.OnClickListener {
+public class VideoPlayActivity extends BaseActivity implements View.OnClickListener, FFmpegPlayer.onVideoLostLinkListner {
     private FFmpegPlayer fFmpegPlayer;
     private String path;
     private SurfaceView surfaceView;
@@ -46,7 +46,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnClickListe
         setContentView(R.layout.activity_video_play);
         path = getIntent().getStringExtra("path");
         rootView = (FrameLayout) findViewById(R.id.rootView);
-        fFmpegPlayer = new FFmpegPlayer();
+        fFmpegPlayer = new FFmpegPlayer(this);
         surfaceView = (SurfaceView) findViewById(R.id.surface);
         vVideoControl = (RelativeLayout) getLayoutInflater().inflate(R.layout.view_video_control, null, false);
         vVideoControl.findViewById(R.id.change_camera).setOnClickListener(this);
@@ -112,7 +112,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnClickListe
                         Tool.removeProgressDialog();
                         MyLogger.i("timeOut");
                         Tool.showToast(getString(R.string.load_video_fail));
-                        fFmpegPlayer.reset();
+                        fFmpegPlayer.stop();
                     }
                 });
             }
@@ -139,5 +139,10 @@ public class VideoPlayActivity extends BaseActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         fFmpegPlayer.stop();
+    }
+
+    @Override
+    public void videoLostLink() {
+
     }
 }

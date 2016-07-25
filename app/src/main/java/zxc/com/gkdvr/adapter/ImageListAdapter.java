@@ -100,10 +100,21 @@ public class ImageListAdapter extends BaseAdapter {
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             TextView textView = new TextView(context);
-            StringBuffer filename = new StringBuffer(file.getImagename().substring(8, 14));
+            String imageName = file.getImagename();
+            StringBuffer filename = new StringBuffer(imageName.substring(8, 14));
             filename.insert(2, ":");
             filename.insert(5, ":");
-            textView.setText(filename.toString());
+            if(imageName.contains("_L")){
+                textView.setText("L  "+filename.toString());
+            }else if(imageName.contains("_F")){
+                textView.setText("F  "+filename.toString());
+            }else if(imageName.contains("_R")){
+                textView.setText("R  "+filename.toString());
+            }else if(imageName.contains("_B")){
+                textView.setText("B  "+filename.toString());
+            }else {
+                textView.setText(filename.toString());
+            }
             textView.setWidth(maxWidth);
             textView.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(maxWidth, maxHeight);
@@ -127,7 +138,7 @@ public class ImageListAdapter extends BaseAdapter {
     }
 
     public interface onImageClickListner {
-        abstract void onImageClick(ImageEntity entity);
+        void onImageClick(ImageEntity entity);
     }
 
 }

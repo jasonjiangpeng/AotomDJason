@@ -99,10 +99,21 @@ public class VideoListAdapter extends BaseAdapter {
             TextView textView = new TextView(context);
             textView.setWidth(maxWidth);
             textView.setGravity(Gravity.CENTER);
-            StringBuffer filename = new StringBuffer(file.getVideoname().substring(8, 14));
+            String videoname = file.getVideoname();
+            StringBuffer filename = new StringBuffer(videoname.substring(8, 14));
             filename.insert(2, ":");
             filename.insert(5, ":");
-            textView.setText(filename.toString());
+            if(videoname.contains("_L")){
+                textView.setText("L  "+filename.toString());
+            }else if(videoname.contains("_F")){
+                textView.setText("F  "+filename.toString());
+            }else if(videoname.contains("_R")){
+                textView.setText("R  "+filename.toString());
+            }else if(videoname.contains("_B")){
+                textView.setText("B  "+filename.toString());
+            }else {
+                textView.setText(filename.toString());
+            }
             LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(maxWidth, maxHeight);
             img.setLayoutParams(vp);
             img.setPadding(UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5), UIUtil.dip2px(context, 5));
@@ -124,6 +135,6 @@ public class VideoListAdapter extends BaseAdapter {
 
 
     public interface onVideoClickListner {
-        abstract void onVideoClick(VideoEntity entity);
+        void onVideoClick(VideoEntity entity);
     }
 }
