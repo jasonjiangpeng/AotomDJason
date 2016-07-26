@@ -39,7 +39,6 @@ public class PhotoActivity extends BaseActivity implements ViewPager.OnPageChang
         iv = (PhotoView) findViewById(R.id.iv);
         vp = (ViewPager) findViewById(R.id.vp);
         String path = getIntent().getStringExtra("path");
-
         if (path == null) {
             allFiles = (ArrayList<File>) getIntent().getSerializableExtra("files");
             File file = (File) getIntent().getSerializableExtra("file");
@@ -71,18 +70,22 @@ public class PhotoActivity extends BaseActivity implements ViewPager.OnPageChang
         int position = vp.getCurrentItem();
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             iv.setScaleType(ImageView.ScaleType.FIT_XY);
-            ((PhotoView) views.get(position)).setScaleType(ImageView.ScaleType.FIT_XY);
-            if (position > 0)
-                ((PhotoView) views.get(position - 1)).setScaleType(ImageView.ScaleType.FIT_XY);
-            if (position < views.size() - 1)
-                ((PhotoView) views.get(position + 1)).setScaleType(ImageView.ScaleType.FIT_XY);
+            if(views.size()!=0) {
+                ((PhotoView) views.get(position)).setScaleType(ImageView.ScaleType.FIT_XY);
+                if (position > 0)
+                    ((PhotoView) views.get(position - 1)).setScaleType(ImageView.ScaleType.FIT_XY);
+                if (position < views.size() - 1)
+                    ((PhotoView) views.get(position + 1)).setScaleType(ImageView.ScaleType.FIT_XY);
+            }
         } else {
             iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            ((PhotoView) views.get(vp.getCurrentItem())).setScaleType(ImageView.ScaleType.FIT_CENTER);
-            if (position > 0)
-                ((PhotoView) views.get(position - 1)).setScaleType(ImageView.ScaleType.FIT_CENTER);
-            if (position < views.size() - 1)
-                ((PhotoView) views.get(position + 1)).setScaleType(ImageView.ScaleType.FIT_CENTER);
+            if(views.size()!=0) {
+                ((PhotoView) views.get(vp.getCurrentItem())).setScaleType(ImageView.ScaleType.FIT_CENTER);
+                if (position > 0)
+                    ((PhotoView) views.get(position - 1)).setScaleType(ImageView.ScaleType.FIT_CENTER);
+                if (position < views.size() - 1)
+                    ((PhotoView) views.get(position + 1)).setScaleType(ImageView.ScaleType.FIT_CENTER);
+            }
         }
     }
 

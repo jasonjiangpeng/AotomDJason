@@ -149,7 +149,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         showConnectingDialog();
                     }
                     if (isWifiConnectedToDVR() && !isRtsp) setMedia();
-                    //TODO
                 } else {
                     if (vVideoControl.getVisibility() == View.VISIBLE) {
                         vVideoControl.setVisibility(View.GONE);
@@ -459,9 +458,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
                 break;
-            case R.id.ivVol:
-//                setMute();
-                break;
         }
 
     }
@@ -476,7 +472,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 case R.id.llImage:
                     title.setText(getString(R.string.photo));
                     setTabSelected(0);
-
                     v.setTag(0);
                     setTabSelectColorChange((LinearLayout) v, true);
                     break;
@@ -497,56 +492,39 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
     };
 
-    private void setMute() {
-        int state;
-//        if (isMute) {
-//            state = isRecording ? 1 : 0;
-//        } else {
-//            state = isRecording ? 0 : 1;
-//        }
-        state = isMute ? 0 : 1;
-        NetParamas paramas = new NetParamas();
-        paramas.put("type", "param");
-        paramas.put("action", "setaudio");
-//        paramas.put(isRecording ? "recmute" : "mute", String.valueOf(state));
-        paramas.put("recmute", String.valueOf(state));
-        NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
-            String s;
-
-            @Override
-            public void onResponse(final String result) {
-                MyLogger.i(result);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            s = ResultParser.parse(result);
-                            if (s.equalsIgnoreCase("ok")) {
-                                Tool.showToast(getString(R.string.setting_success));
-                                isMute = !isMute;
-//                                changeMuteIcon();
-                            } else {
-                                Tool.showToast(s);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            Tool.removeProgressDialog();
-                        }
-                    }
-                });
-            }
-        }, getString(R.string.Submiting), true);
-    }
-
-//    private void changeMuteIcon() {
-//        if (isMute) {
-//            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.close_vol));
-//            Tool.saveToSharePrefrence(this, "recmute", 1);
-//        } else {
-//            ivVol.setImageDrawable(getResources().getDrawable(R.mipmap.open_vol));
-//            Tool.saveToSharePrefrence(this, "recmute", 0);
-//        }
+//    private void setMute() {
+//        int state;
+//        state = isMute ? 0 : 1;
+//        NetParamas paramas = new NetParamas();
+//        paramas.put("type", "param");
+//        paramas.put("action", "setaudio");
+//        paramas.put("recmute", String.valueOf(state));
+//        NetUtil.get(Constance.BASE_URL, paramas, new NetCallBack() {
+//            String s;
+//
+//            @Override
+//            public void onResponse(final String result) {
+//                MyLogger.i(result);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            s = ResultParser.parse(result);
+//                            if (s.equalsIgnoreCase("ok")) {
+//                                Tool.showToast(getString(R.string.setting_success));
+//                                isMute = !isMute;
+//                            } else {
+//                                Tool.showToast(s);
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        } finally {
+//                            Tool.removeProgressDialog();
+//                        }
+//                    }
+//                });
+//            }
+//        }, getString(R.string.Submiting), true);
 //    }
 
 
@@ -554,12 +532,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     protected void onPause() {
         super.onPause();
         fFmpegPlayer.stop();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
         isRtsp = false;
+        isTimeOut = true;
         if (recStateTimer != null)
             recStateTimer.cancel();
     }
@@ -867,13 +841,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            if (recMute == 1) {
-//                isMute = false;
-//                ivVol.setImageResource(R.mipmap.open_vol);
-//            } else {
-//                isMute = true;
-//                ivVol.setImageResource(R.mipmap.close_vol);
-//            }
             if (isShowRtsp) {
                 vVideoControl.setVisibility(View.VISIBLE);
                 rlBottomLayout.setVisibility(View.GONE);

@@ -291,7 +291,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
         if (type == 0) {
             tv.setVisibility(View.GONE);
         } else if (type == 2) {
-            tv.setText("解锁");
+            tv.setText(getString(R.string.unlock_file));
         }
         view.findViewById(R.id.download).setOnClickListener(this);
         view.findViewById(R.id.delete).setOnClickListener(this);
@@ -388,7 +388,7 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
         }
         NetUtil.download(url, new NetCallBack() {
             @Override
-            public void onResponse(Call call, Response response)   {
+            public void onResponse(Call call, Response response) {
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -484,6 +484,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            Tool.removeProgressDialog();
                         }
                     }
                 });
@@ -517,6 +519,8 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
                             } else Tool.showToast(s);
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            Tool.removeProgressDialog();
                         }
                     }
                 });
