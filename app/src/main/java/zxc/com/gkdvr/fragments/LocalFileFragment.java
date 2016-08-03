@@ -213,7 +213,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                 if (type == 1) {
                     intent = new Intent(getActivity(), PhotoActivity.class);
                     intent.putExtra("file", currentFile);
-                    intent.putExtra("files",allFiles);
+                    intent.putExtra("files", allFiles);
                 } else {
                     intent = new Intent(getActivity(), PlaybackActivity2.class);
                     MyLogger.i(filePath);

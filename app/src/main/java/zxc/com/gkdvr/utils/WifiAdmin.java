@@ -271,6 +271,11 @@ public class WifiAdmin {
 
     public void disconnectWifi() {
         this.mWifiManager.disconnect();
+        for (WifiConfiguration configuration:mWifiManager.getConfiguredNetworks()){
+            if(configuration.SSID.startsWith("\"DVR")||configuration.SSID.startsWith("\"UBI"))
+                mWifiManager.removeNetwork(configuration.networkId);
+        }
+        mWifiManager.saveConfiguration();
     }
 
     public WifiConfiguration CreateWifiInfo(String SSID, String Password, int Type) {

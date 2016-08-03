@@ -405,7 +405,6 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
 
             @Override
             public void onResponse(String result) {
-
             }
         });
     }
