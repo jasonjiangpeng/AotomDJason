@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,8 +26,8 @@ import zxc.com.gkdvr.utils.Tool;
  * Created by dk on 2016/6/10.
  */
 public class SettingDeviceActivity extends BaseActivity implements View.OnClickListener {
-    private int choose;
     private NetParamas paramas;
+    private TextView version;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,10 +38,12 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
             showConnectingDialog();
             return;
         }
+        getVersion();
     }
 
     private void initView() {
         setTitleText(getString(R.string.device_setting));
+        version = (TextView) findViewById(R.id.version);
         findViewById(R.id.title_left).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +101,7 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
                 Tool.changeDialogText(a1);
                 break;
             case R.id.about:
-                getVersion();
+                //getVersion();
                 break;
             case R.id.sdcard_format:
                 AlertDialog a2 = new AlertDialog.Builder(SettingDeviceActivity.this).setMessage(getString(R.string.alert_format_SD)).setNegativeButton(getString(R.string.cancel), null)
@@ -129,8 +132,9 @@ public class SettingDeviceActivity extends BaseActivity implements View.OnClickL
                         try {
                             s = ResultParser.parse(result);
                             if (s.equalsIgnoreCase("ok")) {
-                                String version = ResultParser.parseVersion(result);
-                                Tool.showToast(getString(R.string.version) + version.substring(0, version.length() - 1));
+                                String v = ResultParser.parseVersion(result);
+//                                Tool.showToast(getString(R.string.version) + v.substring(0, v.length() - 1));
+                                version.setText(v.substring(0, v.length() - 1));
                             } else {
                                 Tool.showToast(s);
                             }

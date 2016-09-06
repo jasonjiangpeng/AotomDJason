@@ -649,7 +649,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                 toggleMediaControlsVisiblity();
             }
         }
-
         return super.onKeyDown(keyCode, event);
     }
 

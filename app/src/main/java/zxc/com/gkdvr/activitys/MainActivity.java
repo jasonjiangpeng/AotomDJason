@@ -22,6 +22,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,6 +32,7 @@ import com.libs.ffmpeg.FFmpegPlayer;
 import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
@@ -86,6 +88,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_preview);
         if (isWifiConnectedToDVR())
             getRecord();
@@ -141,6 +144,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         });
         rlDuallaoyut.addView(vVideoControl);
         vVideoControl.setVisibility(View.GONE);
+        surfaceView.getHolder().addCallback(callback);
         rlDuallaoyut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,6 +162,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
             }
         });
+
     }
 
     private AlertDialog connectionDialog;
@@ -246,29 +251,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Tool.changeDialogText(connectionDialog);
     }
 
+    private SurfaceHolder.Callback callback = new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            MyLogger.e("isShowRtsp------------>>" + isShowRtsp);
+            surfaceHolder = holder;
+            isSurfaceCreated = true;
+            if (isShowRtsp)
+                setMedia();
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            surfaceHolder = holder;
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+    };
+
     private void showVideo() {
+        MyLogger.i("showVideo");
         if (!isSurfaceCreated) {
             MyLogger.e("isRtsp------------>>" + isRtsp);
-            surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-                @Override
-                public void surfaceCreated(SurfaceHolder holder) {
-                    MyLogger.e("isShowRtsp------------>>" + isShowRtsp);
-                    surfaceHolder = holder;
-                    surfaceHolder.setKeepScreenOn(true);
-                    isSurfaceCreated = true;
-                    if (isShowRtsp)
-                        setMedia();
-                }
-
-                @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                    surfaceHolder = holder;
-                }
-
-                @Override
-                public void surfaceDestroyed(SurfaceHolder holder) {
-                }
-            });
+            surfaceView.getHolder().addCallback(callback);
         } else if (ScreenActionReceiver.isReloadRtsp && isShowRtsp) {
             setMedia();
             ScreenActionReceiver.isReloadRtsp = false;
@@ -288,10 +295,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Tool.showProgressDialog2(getString(R.string.buffering), false, MainActivity.this);
+                Tool.showProgressDialog2(getString(R.string.buffering), true, MainActivity.this);
 
             }
         });
+        title_wifi.setVisibility(View.GONE);
+        if (isDoubleCamera()) titleRight.setVisibility(View.VISIBLE);
         isTimeOut = false;
         timeOut = new Timer();
         timeOut.schedule(new TimerTask() {
@@ -383,7 +392,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                                         }
                                     }
                                 }
-                                ;
                             }
                         });
                     }
@@ -531,6 +539,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected void onPause() {
         super.onPause();
+        MyLogger.i("onPause");
         fFmpegPlayer.stop();
         isRtsp = false;
         isTimeOut = true;
@@ -761,13 +770,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 case 0:
                     if (isTimeOut) return;
                     timeOut.cancel();
+                    Tool.removeProgressDialog();
                     MyLogger.e("setSurface" + System.currentTimeMillis());
                     if (surfaceHolder == null) return;
                     fFmpegPlayer.setSurface(surfaceHolder.getSurface(), 0, 0);
                     MyLogger.e("setSurface  end" + System.currentTimeMillis());
                     isRtsp = true;
                     ivBackground.setVisibility(View.GONE);
-                    Tool.removeProgressDialog();
                     titleRight.setClickable(true);
                     change_camera.setClickable(true);
                     return;
@@ -892,9 +901,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     public void onClick(DialogInterface dialog, int which) {
                         try {
                             new WifiAdmin(MainActivity.this).disconnectWifi();
-                            MyApplication.exit();
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            MyApplication.exit();
                         }
                     }
                 }).show();
@@ -922,7 +932,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             surfaceView.setVisibility(View.GONE);
             surfaceView.setVisibility(View.VISIBLE);
             ivBackground.setVisibility(View.VISIBLE);
-            showConnectingDialog();
+            if (isShowRtsp)
+                showConnectingDialog();
             if (isRecording) {
                 recordTimer.cancel();
                 recStateTimer.cancel();
@@ -942,6 +953,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                MyLogger.i("videoLostLink");
                 Tool.showToast(getString(R.string.load_video_fail));
                 isRtsp = false;
             }

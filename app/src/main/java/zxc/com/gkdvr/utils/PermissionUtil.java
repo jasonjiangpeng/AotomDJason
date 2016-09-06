@@ -21,7 +21,7 @@ public class PermissionUtil {
     public static boolean hasPermisson(final String permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int hasWriteContactsPermission = MyApplication.getCurrentActivity().checkSelfPermission(permissions);
-            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+            if (hasWriteContactsPermission == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
                 return false;

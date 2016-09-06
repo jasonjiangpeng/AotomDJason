@@ -14,6 +14,7 @@ import com.pgyersdk.update.UpdateManagerListener;
 
 import zxc.com.gkdvr.R;
 import zxc.com.gkdvr.utils.Tool;
+import zxc.com.gkdvr.utils.WifiAdmin;
 
 /**
  * Created by dk on 2016/6/24.
@@ -32,6 +33,7 @@ public class VersionInfoActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        new WifiAdmin(VersionInfoActivity.this).disconnectWifi();
                         Intent intent = new Intent();
                         intent.setAction("android.net.wifi.PICK_WIFI_NETWORK");
                         startActivity(intent);

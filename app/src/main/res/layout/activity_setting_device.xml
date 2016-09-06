@@ -83,6 +83,15 @@
             android:padding="10dp"
             android:text="@string/version"
             android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:gravity="right"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </LinearLayout>

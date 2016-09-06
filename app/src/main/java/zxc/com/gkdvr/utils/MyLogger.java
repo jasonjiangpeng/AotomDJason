@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.Hashtable;
 
 public class MyLogger {
-    private final static boolean logFlag = false;
+    private final static boolean logFlag = true;
     public final static String tag = "[" + Constance.APP_NAME + "]";
     private static String userName = "dk";
 

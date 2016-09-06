@@ -25,6 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -88,11 +90,11 @@ public class WifiListActivity extends BaseActivity implements AdapterView.OnItem
             if (!PermissionUtil.hasPermisson(Manifest.permission.ACCESS_WIFI_STATE)) {
                 new PermissionUtil().askforPermission(Manifest.permission.ACCESS_WIFI_STATE);
             }
-            if (!PermissionUtil.hasPermisson(Manifest.permission.ACCESS_FINE_LOCATION )) {
-                new PermissionUtil().askforPermission(Manifest.permission.ACCESS_FINE_LOCATION );
+            if (!PermissionUtil.hasPermisson(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new PermissionUtil().askforPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             }
-            if (!PermissionUtil.hasPermisson(Manifest.permission.ACCESS_COARSE_LOCATION )) {
-                new PermissionUtil().askforPermission(Manifest.permission.ACCESS_COARSE_LOCATION );
+            if (!PermissionUtil.hasPermisson(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                new PermissionUtil().askforPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
             }
         }
         Tool.showProgressDialog(getString(R.string.scaning), false, this);
@@ -114,6 +116,12 @@ public class WifiListActivity extends BaseActivity implements AdapterView.OnItem
                             data.add(result);
                     }
                     MyLogger.i(data.toString());
+                    Collections.sort(data, new Comparator<ScanResult>() {
+                        @Override
+                        public int compare(ScanResult lhs, ScanResult rhs) {
+                            return wifiManager.compareSignalLevel(rhs.level, lhs.level);
+                        }
+                    });
                     listView.setAdapter(new MyAdapter());
                 }
             }
@@ -127,7 +135,7 @@ public class WifiListActivity extends BaseActivity implements AdapterView.OnItem
             case 123:
                 if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED ||
                         (permissions.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                                grantResults[1] == PackageManager.PERMISSION_GRANTED)){
+                                grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
                     List<ScanResult> scanResults = wifiManager.getScanResults();
                     MyLogger.i(scanResults.toString());
                     //list is still empty
@@ -251,6 +259,11 @@ public class WifiListActivity extends BaseActivity implements AdapterView.OnItem
             MyLogger.i("onReceive");
             abortBroadcast();
             Tool.removeProgressDialog();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             finish();
         }
     }

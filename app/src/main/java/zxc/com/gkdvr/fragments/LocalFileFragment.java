@@ -246,6 +246,7 @@ public class LocalFileFragment extends Fragment implements View.OnClickListener 
                 .setPositiveButton(getString(R.string.ensure), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        new WifiAdmin(getActivity()).disconnectWifi();
                         Intent intent = new Intent();
                         intent.setAction("android.net.wifi.PICK_WIFI_NETWORK");
                         startActivity(intent);

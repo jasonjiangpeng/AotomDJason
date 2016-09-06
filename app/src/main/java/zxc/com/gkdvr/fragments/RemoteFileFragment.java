@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -318,6 +320,9 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
             case R.id.download:
                 if (!PermissionUtil.hasPermisson(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Tool.showToast(getString(R.string.permission_denied));
+                    Uri packageURI = Uri.parse("package:" + "zxc.com.gkdvr");
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,packageURI);
+                    startActivity(intent);
                     return;
                 }
                 downloadFile();
@@ -386,9 +391,11 @@ public class RemoteFileFragment extends Fragment implements VideoListAdapter.onV
         } else {
             url = Constance.BASE_EVENT_URL + filename;
         }
+        Tool.showProgressDialog("正在加载",false,getActivity());
         NetUtil.download(url, new NetCallBack() {
             @Override
             public void onResponse(Call call, Response response) {
+                Tool.removeProgressDialog();
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override

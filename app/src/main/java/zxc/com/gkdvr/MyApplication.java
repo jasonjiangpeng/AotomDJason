@@ -36,5 +36,6 @@ public class MyApplication extends Application {
     public static Activity getCurrentActivity() {
         return activities.peek();
     }
-
+// IJK   https://github.com/Bilibili/ijkplayer
+//  ffmpeg   3.0
 }

@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -51,6 +52,7 @@ public class BaseActivity extends AppCompatActivity {
             t.setText(title);
         }
     }
+
 
     @Override
     protected void onResume() {
